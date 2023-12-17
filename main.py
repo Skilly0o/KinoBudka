@@ -111,6 +111,7 @@ def new_room():
     return current_user.get_id()
 
 
+# ниже херь которая самая важная ее надо написать это фика сайта совместный просмотр :Д
 @app.route('/v/')
 def videoplayer():
     if not request.args.get('/video/kafka.mp4'): return redirect('/')
