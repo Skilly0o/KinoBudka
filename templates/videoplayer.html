@@ -1,69 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Video Player</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="http://vjs.zencdn.net/5.15.1/video-js.css">
-    <link rel="stylesheet" href="/static/main.css">
-  </head>
-  <body>
-    <section class="container">
-      <div class="video-container col-md-12">
-        <div class="url"> {{ video }}</div>
+<html>
+<head>
+    <title>KinBu</title>
+    <style>
+        body {
+   	   background: #191b1e;
+        }
 
-        <video class="video-js vjs-default-skin" id="video-1" src="{{ video/kafka.mp4 }}" type="video/mp4">
-          <source src="{{ url }}">
-          <source src="kafka.mp4" type="video/mp4">
+
+        #video-container {
+            position: relative;
+            width: 800px;
+            height: 450px;
+            margin: 0 auto;
+        }
+
+        #video-player {
+            width: 100%;
+            height: 100%;
+        }
+
+        #chat-container {
+            width: 800px;
+            height: 300px;
+            margin: 0 auto;
+            background-color: #31353b;
+            padding: 10px;
+            overflow-y: scroll;
+        }
+
+        #chat-input {
+            width: 800px;
+            text-align: center;
+            display: block;
+            background-color: #31353b;
+            margin: 0 auto;
+            padding: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <video id="video-player" controls>
+            <source src="video/teest.mp4" type="video/mp4">
         </video>
+    </div>
 
-      </div>
-    </section>
+    <div id="chat-container"></div>
+    <input id="chat-input" type="text" placeholder="Введите сообщение">
 
-    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-    <script src="http://vjs.zencdn.net/5.15.1/video.js"></script>
-    <script src="//cdn.sc.gl/videojs-hotkeys/latest/videojs.hotkeys.min.js"></script>
-
-    <script type='text/javascript'>
-      var video = videojs("video-1", {
-        autoplay: true,
-        preload: true,
-        controls: true,
-        aspectRatio: '16:9',
-        playbackRates: [0.7, 1, 1.15, 1.25, 1.5, 2]
-      });
-      video.ready(function() {
-        this.hotkeys({
-          volumeStep: 0.1,
-          seekStep: 5,
-          enableModifiersForNumbers: true,
-          alwaysCaptureHotkeys: true,
-          customKeys: {
-            speedUp: {
-              key: function(event) {
-                // Toggle something with shift >
-                return (event.shiftKey && event.which === 190);
-              },
-              handler: function(player, options, event) {
-                var p = player.playbackRate();
-                var list = player.options_.playbackRates;
-                if(to = list[list.indexOf(p) + 1] ) player.playbackRate(to)
-              }
-            },
-            speedDown: {
-              key: function(event) {
-                // Toggle something with shift <
-                return (event.shiftKey && event.which === 188);
-              },
-              handler: function(player, options, event) {
-                var p = player.playbackRate();
-                var list = player.options_.playbackRates;
-                if(to = list[list.indexOf(p) - 1] ) player.playbackRate(to)
-              }
+    <script>
+        document.getElementById("chat-input").addEventListener("keydown", function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                sendMessage();
             }
-          }
         });
-      });
+        function sendMessage() {
+            var message = document.getElementById("chat-input").value;
+            document.getElementById("chat-input").value = "";
+
+            var chatContainer = document.getElementById("chat-container");
+            var chatMessage = document.createElement("p");
+            chatMessage.innerHTML = message;
+            chatContainer.appendChild(chatMessage);
+        }
     </script>
-  </body>
+</body>
 </html>
