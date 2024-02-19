@@ -1,43 +1,22 @@
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from user_login import User_login
 
-app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['SECRET_KEY'] = 'SDK234LFJ45Ssl546di453ujckld23cs'
-db = SQLAlchemy(app)
+from config.user import User
+from config.user_login import User_login
+from setting import *
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
-
-    def __repr__(self):
-        return '<User %r>' % self.username
-
-
-
-def create_db():
-    with app.app_context():
-        db.create_all()
-
-#Памятка Выше тех часть в ней не писать страницы и обработки!
-
-
 @login_manager.user_loader
 def load_user(user_id):
+    # удалить принты в будущем
     print('load_user')
     print(user_id)
     return User_login().fromDB(user_id, User)
+
 
 @app.route("/")
 def hello():
@@ -94,7 +73,7 @@ def register():
 def profile():
     username = User.query.filter_by(id=current_user.get_id()).first().username
     email = User.query.filter_by(id=current_user.get_id()).first().email
-    return render_template('profile.html',  name=username, mail=email)
+    return render_template('profile.html', name=username, mail=email)
 
 
 @app.route("/logout")
@@ -108,18 +87,8 @@ def logout():
 @app.route("/newroom")
 @login_required
 def new_room():
-    return current_user.get_id()
-
-
-@app.route('/v/')
-def videoplayer():
-    if not request.args.get('/video/kafka.mp4'): return redirect('/')
-    return render_template('videoplayer.html', url=request.args.get('url'))
+    return render_template('videoplayer.html')
 
 
 if __name__ == '__main__':
-    create_db()
     app.run(debug=True)
-
-
-
