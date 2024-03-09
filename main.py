@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from config.user import User
 from config.user_login import User_login
 from setting import *
+from config.mail_sender import send_email
+
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -43,9 +45,15 @@ def login():
     return render_template('login.html')
 
 
-@app.route("/support")
+@app.route("/support", methods=['GET', 'POST'])
 def support():
-    return render_template('support.html')
+    if request.method == 'POST':
+        email = request.form['email']
+        print(email)
+        if send_email(email, 'Тест письмо', 'типикал текст'):
+            return f'Done {email}'
+        return 'Error'
+    return render_template('support.html', user=current_user)
 
 
 @app.route('/register', methods=['GET', 'POST'])
