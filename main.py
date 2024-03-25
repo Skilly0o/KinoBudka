@@ -106,5 +106,11 @@ def youtube(): # для создания видоса с ютуба
     return render_template('youtube.html')
 
 
+@app.route("/films", methods=['GET', 'POST'])
+@login_required
+def films(): # для создания видоса с ютуба
+    return render_template('videoplayer.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
