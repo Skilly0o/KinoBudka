@@ -6,6 +6,7 @@ from config.user import User
 from config.user_login import User_login
 from setting import *
 from config.mail_sender import send_email
+from config.youtube import get_video_id
 
 
 login_manager = LoginManager(app)
@@ -93,9 +94,15 @@ def logout(): # выход пользователя
     return redirect(url_for('login'))
 
 
-@app.route("/youtube")
+@app.route("/youtube", methods=['GET', 'POST'])
 @login_required
 def youtube(): # для создания видоса с ютуба
+    if request.method == 'POST':
+        url = request.form['hrf']
+        if get_video_id(url):
+            return render_template('roomyutube.html', id=get_video_id(url))
+        else:
+            flash('Something went wrong, please try again.', 'danger')
     return render_template('youtube.html')
 
 
