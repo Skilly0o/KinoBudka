@@ -42,9 +42,10 @@
 </head>
 <body>
     <div id="video-container">
-        <video id="video-player" controls>
-            <source src="video/teest.mp4" type="video/mp4">
-        </video>
+        <iframe width="800" height="450"
+          src="https://www.youtube.com/embed/{{ id }}" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+        </iframe>
     </div>
 
     <div id="chat-container"></div>

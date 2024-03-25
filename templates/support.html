@@ -5,8 +5,17 @@ KinBu
 {% endblock %}
 
 {% block body %}
-<div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-      <h1 class="text-white display-4 fw-normal text-body-emphasis">Welcome</h1>
-      <p class="text-white fs-5 text-body-secondary">Зачем тебе поддержка?</p>
-    </div>
+
+{% if user.is_authenticated %}
+    <form method="post" class="form-group">
+        <input type="email" class="form-control" name="email">
+        <button type="submit" class="btn btn-primary">Отправить</button>
+    </form>
+{% else %}
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+          <h1 class="text-white display-4 fw-normal text-body-emphasis">Welcome</h1>
+          <p class="text-white fs-5 text-body-secondary">Зарегистрируйтесь чтобы использовать поддержку.</p>
+          <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/login">Войти в аккаунт</a>
+        </div>
+{% endif %}
 {% endblock %}
