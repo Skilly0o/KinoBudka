@@ -108,7 +108,7 @@ def youtube(): # для создания видоса с ютуба
 
 @app.route("/films", methods=['GET', 'POST'])
 @login_required
-def films(): # для создания видоса с ютуба
+def films(): # для просмотра фильмов
     return render_template('videoplayer.html')
 
 
