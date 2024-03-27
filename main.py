@@ -17,8 +17,8 @@ login_manager.login_view = 'login'
 @login_manager.user_loader
 def load_user(user_id): # функция загрузки пользователя
     # удалить принты в будущем
-    print('load_user')
-    print(user_id)
+    
+    print('load_user', user_id)
     return User_login().fromDB(user_id, User)
 
 
@@ -130,6 +130,7 @@ def room(nameRoom):
         if url:
             print('Создана комната', nameRoom)
             print(url)
+            session.pop('current_url', '')
             return render_template('roomyutube.html', id=get_video_id(url))
         else:
             return render_template('youtube.html')
