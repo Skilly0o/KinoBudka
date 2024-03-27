@@ -1,6 +1,7 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from markupsafe import escape
 
 from config.user import User
 from config.user_login import User_login
@@ -19,6 +20,18 @@ def load_user(user_id): # функция загрузки пользовател
     print('load_user')
     print(user_id)
     return User_login().fromDB(user_id, User)
+
+
+@app.route('/set_session/<value>')
+def set_session(value):
+    session['value'] = value
+    return 'Значение переменной value сохранено в сессии.'
+
+@app.route('/get_session')
+def get_session():
+    value = session.get('value', 'Not set')
+    return 'Значение переменной value в сессии: {}'.format(escape(value))
+
 
 
 @app.route("/")
@@ -99,11 +112,31 @@ def logout(): # выход пользователя
 def youtube(): # для создания видоса с ютуба
     if request.method == 'POST':
         url = request.form['hrf']
+        nameroom = create_name_room()
         if get_video_id(url):
-            return render_template('roomyutube.html', id=get_video_id(url))
+            session['current_url'] = url
+            return redirect(url_for('room', nameRoom=nameroom))
         else:
             flash('Something went wrong, please try again.', 'danger')
     return render_template('youtube.html')
+
+
+@app.route("/room/<nameRoom>", methods=['GET', 'POST'])
+@login_required
+def room(nameRoom):
+    if request.method == 'GET':
+        # Получаем переменную url из сеанса
+        url = session.get('current_url')
+        if url:
+            print('Создана комната', nameRoom)
+            print(url)
+            return render_template('roomyutube.html', id=get_video_id(url))
+        else:
+            return render_template('youtube.html')
+
+
+
+
 
 
 if __name__ == '__main__':

@@ -2,6 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 from flask_mail import Mail
+import random
+import string
 
 # КОНФИГИ САЙТА КОНСТАНТЫ
 
@@ -24,4 +26,13 @@ db = SQLAlchemy(app) # создание класса бд
 def create_db():
     with app.app_context():
         db.create_all()
+
+# функц для создания радндомной посл букв и цифр
+def create_name_room():
+    return ''.join(
+        random.choices(
+            string.ascii_letters + string.digits,
+            k=45
+        )
+    )
 
