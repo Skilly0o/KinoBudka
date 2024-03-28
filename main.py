@@ -8,7 +8,6 @@ from setting import *
 from config.mail_sender import send_email
 from config.youtube import get_video_id
 
-
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -19,7 +18,6 @@ def load_user(user_id): # функция загрузки пользовател
     print('load_user')
     print(user_id)
     return User_login().fromDB(user_id, User)
-
 
 @app.route("/")
 def hello(): # главная страница ( надо сделать отображение бд с фильмами да и обдумать каак украсить ее
@@ -42,7 +40,7 @@ def login(): # вход пользователя
             userlogin = User_login().create(user)
             login_user(userlogin) # Если все совпало то логинем пользователя перенаправляя его в профиль
             return redirect(url_for('profile'))
-    flash('Не вернные данные', 'error')
+    flash('Не верные данные', 'error')
     return render_template('login.html')
 
 

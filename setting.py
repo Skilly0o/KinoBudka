@@ -1,12 +1,10 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from dotenv import load_dotenv
 from flask_mail import Mail
 
 # КОНФИГИ САЙТА КОНСТАНТЫ
 
 app = Flask(__name__)
-load_dotenv()
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db' # класс бд
 app.config['SECRET_KEY'] = 'SDK234LFJ45Ssl546di453ujckld23cs' # секретный ключ
