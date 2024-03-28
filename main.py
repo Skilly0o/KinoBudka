@@ -133,7 +133,8 @@ def room(nameRoom):
             session.pop('current_url', '')
             return render_template('roomyutube.html', id=get_video_id(url))
         else:
-            return render_template('youtube.html')
+            error = 'not_room'
+            return render_template('error.html', error=error)
 
 
 
