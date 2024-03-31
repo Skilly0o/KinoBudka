@@ -42,54 +42,55 @@
         }
 
 
+
     </style>
 </head>
 <body>
-    <div id="video-container">
-        <iframe width="800" height="450"
-                src="https://www.youtube.com/embed/{{ id }}" frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-        </iframe>
-    </div>
+<div id="video-container">
+    <iframe width="800" height="450"
+            src="https://www.youtube.com/embed/{{ id }}" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+    </iframe>
+</div>
 
-<div id="chat-container"></div>
+<div id="chat-input"></div>
 <input id="message" name="message" type="text" placeholder="Введите сообщение" class="text-light"/>
-    <button onclick="sendMessage()" class="send-button" name="send" id="send-btn">
-        --->
-    </button>
-
-<script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
-<script>
+<button type="button" name="send" id="send-btn" onClick="sendMessage()">
+    --->
+</button>
+<script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+      crossorigin="anonymous"
+></script>
+<script type="text/javascript">
         var socketio = io();
 
-        const messages = document.getElementById("chat-container");
+  const messages = document.getElementById("chat-input");
 
-        const createMessage = (name, msg) => {
-            const content = `
-            <div class="text">
-                <span>
-                    <strong>${name}</strong>: ${msg}
-                </span>
-                <span class="muted">
-                    ${new Date().toLocaleString()}
-                </span>
-            </div>
-            `;
-           messages.innerHTML += content;
-         };
+  const createMessage = (name, msg) => {
+    const content = `
+    <div class="text">
+        <span>
+            <strong>${name}</strong>: ${msg}
+        </span>
+    </div>
+    `;
+    messages.innerHTML += content;
+  };
 
-        socketio.on("message", (data) => {
+  socketio.on("message", (data) => {
     createMessage(data.name, data.message);
-    });
+  });
 
+  const sendMessage = () => {
+    const message = document.getElementById("message");
+    if (message.value == "") return;
+    socketio.emit("message", { data: message.value });
+    message.value = "";
+  };
 
-    const sendMessage = () => {
-        const message = document.getElementById("message");
-        if (message.value == "") return;
-        socketio.emit("message", { data: message.value });
-        message.value = "";
-    };
 
 
 </script>
@@ -97,6 +98,7 @@
 {% for msg in messages %}
 <script type="text/javascript">
   createMessage("{{msg.name}}", "{{msg.message}}");
+
 </script>
 {% endfor %}
 

@@ -130,7 +130,6 @@ def youtube():
 def join_room(nameRoom): # room page
     session["room"] = nameRoom
     if nameRoom in rooms:
-        print(session)
         url = rooms[nameRoom]['url']
         return render_template('roomyutube.html', id=get_video_id(url), messages=rooms[nameRoom]["messages"])
     else:
@@ -184,9 +183,6 @@ def message(data):
     send(content, to=room)
     rooms[room]["messages"].append(content)
     print(f"{name} said: {data['data']}")
-
-
-
 
 
 if __name__ == '__main__':
