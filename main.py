@@ -98,7 +98,7 @@ def youtube(): # для создания видоса с ютуба
     if request.method == 'POST':
         url = request.form['hrf']
         if get_video_id(url):
-            return render_template('roomyutube.html', id=get_video_id(url))
+            return render_template('roomyoutube.html', id=get_video_id(url))
         else:
             flash('Something went wrong, please try again.', 'danger')
     return render_template('youtube.html')
