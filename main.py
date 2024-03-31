@@ -132,7 +132,7 @@ def join_room(nameRoom): # room page
     if nameRoom in rooms:
         print(session)
         url = rooms[nameRoom]['url']
-        return render_template('roomyutube.html', id=get_video_id(url))
+        return render_template('roomyutube.html', id=get_video_id(url), messages=rooms[nameRoom]["messages"])
     else:
         error = 'not_room'
         return render_template('error.html', error=error)
@@ -168,6 +168,24 @@ def disconnect():
     send({"name": name, "message": "has left the room"}, to=room)
     print(rooms[room])
     print(f"{name} has left the room {room}")
+
+
+@socketio.on("message")
+def message(data):
+    room = session.get("room")
+    name = User.query.filter_by(id=current_user.get_id()).first().username
+    if room not in rooms:
+        return
+
+    content = {
+        "name": name,
+        "message": data["data"]
+    }
+    send(content, to=room)
+    rooms[room]["messages"].append(content)
+    print(f"{name} said: {data['data']}")
+
+
 
 
 

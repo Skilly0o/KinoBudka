@@ -40,31 +40,65 @@
             padding: 5px;
             margin-top: 10px;
         }
+
+
     </style>
 </head>
 <body>
     <div id="video-container">
         <iframe width="800" height="450"
-          src="https://www.youtube.com/embed/{{ id }}" frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                src="https://www.youtube.com/embed/{{ id }}" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
         </iframe>
     </div>
 
-    <div id="chat-container"></div>
-    <input id="message" name="message" type="text" placeholder="Введите сообщение" class="text-light"/>
+<div id="chat-container"></div>
+<input id="message" name="message" type="text" placeholder="Введите сообщение" class="text-light"/>
+    <button onclick="sendMessage()" class="send-button" name="send" id="send-btn">
+        --->
+    </button>
 
-     <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
-    <script>
+<script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
+<script>
         var socketio = io();
 
-        const messages = document.getElementById("message");
+        const messages = document.getElementById("chat-container");
+
+        const createMessage = (name, msg) => {
+            const content = `
+            <div class="text">
+                <span>
+                    <strong>${name}</strong>: ${msg}
+                </span>
+                <span class="muted">
+                    ${new Date().toLocaleString()}
+                </span>
+            </div>
+            `;
+           messages.innerHTML += content;
+         };
+
+        socketio.on("message", (data) => {
+    createMessage(data.name, data.message);
+    });
 
 
-
-        const sendMessage = () => {
-    console.log("send");
+    const sendMessage = () => {
+        const message = document.getElementById("message");
+        if (message.value == "") return;
+        socketio.emit("message", { data: message.value });
+        message.value = "";
     };
 
-    </script>
+
+</script>
+
+{% for msg in messages %}
+<script type="text/javascript">
+  createMessage("{{msg.name}}", "{{msg.message}}");
+</script>
+{% endfor %}
+
 </body>
 </html>
