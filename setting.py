@@ -22,6 +22,10 @@ app.config['MAIL_DEFAULT_SENDER'] = 'vanekbadanin@yandex.ru' # ящик почт
 mail = Mail(app) # создание класса для писем
 db = SQLAlchemy(app) # создание класса бд
 
+sess = {}
+
+rooms = {}
+
 # для создания бд, если надо создать базу данных просто вызвать эту функцию перед запуском сайта
 def create_db():
     with app.app_context():

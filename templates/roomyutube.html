@@ -51,24 +51,20 @@
     </div>
 
     <div id="chat-container"></div>
-    <input id="chat-input" type="text" placeholder="Введите сообщение" class="text-light">
+    <input id="message" name="message" type="text" placeholder="Введите сообщение" class="text-light"/>
 
+     <script src="https://cdn.socket.io/4.3.1/socket.io.min.js"></script>
     <script>
-        document.getElementById("chat-input").addEventListener("keydown", function(event) {
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                sendMessage();
-            }
-        });
-        function sendMessage() {
-            var message = document.getElementById("chat-input").value;
-            document.getElementById("chat-input").value = "";
+        var socketio = io();
 
-            var chatContainer = document.getElementById("chat-container");
-            var chatMessage = document.createElement("p");
-            chatMessage.innerHTML = message;
-            chatContainer.appendChild(chatMessage);
-        }
+        const messages = document.getElementById("message");
+
+
+
+        const sendMessage = () => {
+    console.log("send");
+    };
+
     </script>
 </body>
 </html>
