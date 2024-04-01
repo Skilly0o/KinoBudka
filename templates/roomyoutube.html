@@ -109,23 +109,53 @@
         </div>
     </div>
     </footer>
-    <script>
-        document.getElementById("chat-input").addEventListener("keydown", function(event) {
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                sendMessage();
-            }
-        });
-        function sendMessage() {
-            var message = document.getElementById("chat-input").value;
-            document.getElementById("chat-input").value = "";
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+      crossorigin="anonymous"
+></script>
+<script type="text/javascript">
+  var socketio = io();
 
-            var chatContainer = document.getElementById("chat-container");
-            var chatMessage = document.createElement("p");
-            chatMessage.innerHTML = message;
-            chatContainer.appendChild(chatMessage);
-        }
+  const messages = document.getElementById("chat-container");
+  const chatInput = document.getElementById("chat-input");
 
-    </script>
+  const createMessage = (name, msg) => {
+    const content = `
+    <div class="text">
+        <span>
+            <strong>${name}</strong>: ${msg}
+        </span>
+    </div>
+    `;
+    messages.innerHTML += content;
+  };
+
+  socketio.on("message", (data) => {
+    createMessage(data.name, data.message);
+});
+
+  const sendMessage = () => {
+    const message = document.getElementById("chat-input");
+    if (message.value == "") return;
+    socketio.emit("message", { data: message.value });
+    message.value = "";
+  };
+  chatInput.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  });
+
+
+
+</script>
+
+{% for msg in messages %}
+<script type="text/javascript">
+  createMessage("{{msg.name}}", "{{msg.message}}");
+
+</script>
+{% endfor %}
 </body>
 </html>
