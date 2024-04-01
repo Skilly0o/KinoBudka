@@ -1,7 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail
 from dotenv import load_dotenv
+from flask_mail import Mail
+import random
+import string
 
 # КОНФИГИ САЙТА КОНСТАНТЫ
 
@@ -20,8 +22,21 @@ app.config['MAIL_DEFAULT_SENDER'] = 'vanekbadanin@yandex.ru' # ящик почт
 mail = Mail(app) # создание класса для писем
 db = SQLAlchemy(app) # создание класса бд
 
+sess = {}
+
+rooms = {}
+
 # для создания бд, если надо создать базу данных просто вызвать эту функцию перед запуском сайта
 def create_db():
     with app.app_context():
         db.create_all()
+
+# функц для создания радндомной посл букв и цифр
+def create_name_room():
+    return ''.join(
+        random.choices(
+            string.ascii_letters + string.digits,
+            k=45
+        )
+    )
 

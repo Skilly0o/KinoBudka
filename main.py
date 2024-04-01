@@ -1,23 +1,40 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
+from flask_socketio import *
+from markupsafe import escape
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from config.mail_sender import send_email
 from config.user import User
 from config.user_login import User_login
 from setting import *
 from config.mail_sender import send_email
 from config.youtube import get_video_id
 
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+socketio = SocketIO(app)
 
 
 @login_manager.user_loader
 def load_user(user_id): # функция загрузки пользователя
     # удалить принты в будущем
-    print('load_user')
-    print(user_id)
+    print('load_user', user_id)
     return User_login().fromDB(user_id, User)
+
+
+@app.route('/set_session/<value>')
+def set_session(value):
+    session['value'] = value
+    return 'Значение переменной value сохранено в сессии.'
+
+
+@app.route('/get_session')
+def get_session():
+    value = session.get('value', 'Not set')
+    return 'Значение переменной value в сессии: {}'.format(escape(value))
+
 
 @app.route("/")
 def hello(): # главная страница ( надо сделать отображение бд с фильмами да и обдумать каак украсить ее
@@ -40,8 +57,9 @@ def login(): # вход пользователя
             userlogin = User_login().create(user)
             login_user(userlogin) # Если все совпало то логинем пользователя перенаправляя его в профиль
             return redirect(url_for('profile'))
-    flash('Не верные данные', 'error')
+    flash('Не вернные данные', 'error')
     return render_template('login.html')
+
 
 
 @app.route("/support", methods=['GET', 'POST'])
@@ -97,8 +115,12 @@ def logout(): # выход пользователя
 def youtube(): # для создания видоса с ютуба
     if request.method == 'POST':
         url = request.form['hrf']
+        nameroom = create_name_room()
         if get_video_id(url):
-            return render_template('roomyoutube.html', id=get_video_id(url))
+            rooms[nameroom] = {"members": [], "messages": [], 'url': url}
+            session["room"] = nameroom
+            print('done')
+            return redirect(url_for('join_room', nameRoom=nameroom))
         else:
             flash('Something went wrong, please try again.', 'danger')
     return render_template('youtube.html')
@@ -110,5 +132,66 @@ def films(): # для просмотра фильмов
     return render_template('videoplayer.html')
 
 
+@app.route("/room/<nameRoom>", methods=['GET', 'POST'])
+@login_required
+def join_room(nameRoom): # room page
+    session["room"] = nameRoom
+    if nameRoom in rooms:
+        url = rooms[nameRoom]['url']
+        return render_template('roomyutube.html', id=get_video_id(url), messages=rooms[nameRoom]["messages"])
+    else:
+        error = 'not_room'
+        return render_template('error.html', error=error)
+
+
+@socketio.on("connect")
+def connect(auth):
+    room = session.get("room")
+    name = User.query.filter_by(id=current_user.get_id()).first().username
+    if not room or not name:
+        return 404
+    if room not in rooms:
+        leave_room(room)
+        return
+
+    join_room(room)
+    send({"name": name, "message": "has entered the room"}, to=room)
+    rooms[room]['members'].append(User.query.filter_by(id=current_user.get_id()).first().username)
+    print(rooms[room])
+    print(f"{name} joined room {room}")
+
+@socketio.on("disconnect")
+def disconnect():
+    room = session.get("room")
+    name = User.query.filter_by(id=current_user.get_id()).first().username
+    leave_room(room)
+
+    if room in rooms:
+        rooms[room]['members'].remove(name)
+        if len(rooms[room]["members"]) <= 0:
+            del rooms[room]
+
+    send({"name": name, "message": "has left the room"}, to=room)
+    print(rooms[room])
+    print(f"{name} has left the room {room}")
+
+
+@socketio.on("message")
+def message(data):
+    room = session.get("room")
+    name = User.query.filter_by(id=current_user.get_id()).first().username
+    if room not in rooms:
+        return
+
+    content = {
+        "name": name,
+        "message": data["data"]
+    }
+    send(content, to=room)
+    rooms[room]["messages"].append(content)
+    print(f"{name} said: {data['data']}")
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+

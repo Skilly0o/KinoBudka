@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+KinBu
+{% endblock %}
+
+{% block body %}
+
+{% if error == 'not_room' %}
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+          <h1 class="text-white display-4 fw-normal text-body-emphasis">Ошибка</h1>
+          <p class="text-white fs-5 text-body-secondary">Данной комнаты не существует</p>
+          <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/">На главную</a>
+    </div>
+{% else %}
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+          <h1 class="text-white display-4 fw-normal text-body-emphasis">Ошибка</h1>
+          <p class="text-white fs-5 text-body-secondary">Произошла ошибка на стороне сервера</p>
+          <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/">На главную</a>
+    </div>
+{% endif %}
+
+{% endblock %}
