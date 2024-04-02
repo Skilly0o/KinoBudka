@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
-from flask_socketio import *
+from flask_socketio import join_room, leave_room, send, SocketIO
 from markupsafe import escape
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -12,13 +12,13 @@ from setting import *
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-socketio = SocketIO()
-socketio.init_app(app)
+socketio = SocketIO(app)
 
 
 @login_manager.user_loader
 def load_user(user_id):  # функция загрузки пользователя
-    # удалить принты в будущем
+    username = User.query.filter_by(id=user_id).first().username
+    session["name"] = username
     print('load_user', user_id)
     return User_login().fromDB(user_id, User)
 
@@ -110,19 +110,49 @@ def logout():  # выход пользователя
 
 
 @app.route("/youtube", methods=['GET', 'POST'])
-@login_required
 def youtube():  # для создания видоса с ютуба
     if request.method == 'POST':
-        url = request.form['hrf']
-        nameroom = create_name_room()
-        if get_video_id(url):
-            rooms[nameroom] = {"members": [], "messages": [], 'url': url}
-            session["room"] = nameroom
-            print('done')
-            return redirect(url_for('join_room', nameRoom=nameroom))
+        url = request.form.get("hrf")
+        code = request.form.get("code")
+        join = request.form.get("join", False)
+        create = request.form.get("create", False)
+
+        if not current_user.is_authenticated:
+            name = 'Пользователь'
         else:
-            flash('Something went wrong, please try again.', 'danger')
-    return render_template('youtube.html')
+            name = User.query.filter_by(id=current_user.get_id()).first().username
+
+        if create != False and url is None:
+            print(1)
+            return render_template('youtube.html', user=current_user, error='not url')
+
+        if join != False and not code:
+            print(2)
+            return render_template('youtube.html', user=current_user, error='not room')
+
+        room = code
+        if create != False:
+            if get_video_id(url):
+                room = create_name_room()
+                rooms[room] = {"members": 0, "messages": [], 'url': url}
+                session["room"] = room
+                session["name"] = name
+                return redirect(url_for("room", nameroom=room))
+            else:
+                print('3')
+                return render_template('youtube.html', user=current_user, error='not url')
+        elif code not in room:
+            print('4')
+            return render_template('youtube.html', user=current_user, error='not room')
+
+        session["room"] = room
+        session["name"] = name
+        return redirect(url_for("room", nameroom=room))
+    return render_template('youtube.html', user=current_user)
+
+
+
+
 
 
 @app.route("/films", methods=['GET', 'POST'])
@@ -131,64 +161,60 @@ def films():  # для просмотра фильмов
     return render_template('videoplayer.html')
 
 
-@app.route("/room/<nameRoom>", methods=['GET', 'POST'])
-@login_required
-def join_room(nameRoom):  # room page
-    session["room"] = nameRoom
-    if nameRoom in rooms:
-        url = rooms[nameRoom]['url']
-        return render_template('roomyoutube.html', id=get_video_id(url), messages=rooms[nameRoom]["messages"])
-    else:
-        error = 'not_room'
-        return render_template('error.html', error=error)
+@app.route("/room/<nameroom>", methods=['GET', 'POST'])
+def room(nameroom):  # room page
+    if nameroom is None or session.get("name") is None or nameroom not in rooms:
+        print(session)
+        return render_template('youtube.html', user=current_user, error='not room')
+    print(rooms[nameroom])
+    return render_template("roomyoutube.html", code=nameroom,
+                           url=rooms[nameroom]["url"], messages=rooms[nameroom]["messages"])
 
 
 @socketio.on("message")
 def message(data):
     room = session.get("room")
-    name = User.query.filter_by(id=current_user.get_id()).first().username
+    print(session)
     if room not in rooms:
         return
 
     content = {
-        "name": name,
+        "name": session.get("name"),
         "message": data["data"]
     }
     send(content, to=room)
     rooms[room]["messages"].append(content)
-    print(f"{name} said: {data['data']}")
+    print(f"{session.get('name')} said: {data['data']}")
 
 
 @socketio.on("connect")
 def connect(auth):
     room = session.get("room")
-    name = User.query.filter_by(id=current_user.get_id()).first().username
+    name = session.get("name")
     if not room or not name:
-        return 404
+        return
     if room not in rooms:
         leave_room(room)
         return
 
     join_room(room)
     send({"name": name, "message": "has entered the room"}, to=room)
-    rooms[room]['members'].append(User.query.filter_by(id=current_user.get_id()).first().username)
-    print(rooms[room])
+    rooms[room]["members"] += 1
     print(f"{name} joined room {room}")
 
 
 @socketio.on("disconnect")
 def disconnect():
     room = session.get("room")
-    name = User.query.filter_by(id=current_user.get_id()).first().username
+    name = session.get("name")
     leave_room(room)
 
     if room in rooms:
-        rooms[room]['members'].remove(name)
-        if len(rooms[room]["members"]) <= 0:
+        rooms[room]["members"] -= 1
+        if rooms[room]["members"] <= 0:
             del rooms[room]
 
     send({"name": name, "message": "has left the room"}, to=room)
-    print(rooms[room])
     print(f"{name} has left the room {room}")
 
 

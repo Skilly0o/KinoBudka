@@ -6,12 +6,42 @@ KinBu
 
 {% block body %}
 
-<div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-    <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
-    <form id="createRoomForm" method="post" action="/youtube" class="form-group">
-        <input type="text" class="form-control" name="hrf" id="hrf">
-        <button type="submit" class="btn btn-primary">Создать комнату</button>
-    </form>
-</div>
+{% if user.is_authenticated %}
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
+        <form id="createRoomForm" method="post" action="/youtube" class="form-group">
+            <input type="text" class="form-control" name="hrf" id="hrf">
+            <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
+        </form>
+    </div>
+
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
+        <form id="joinRoomForm" method="post" class="form-group">
+            <input type="text" class="form-control" name="code" id="room">
+            <button type="submit" class="btn btn-primary" name="join">Присоединиться к  комнате</button>
+        </form>
+    </div>
+{% else %}
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
+        <form method="post" action="/youtube" class="form-group">
+            <input type="text" class="form-control" name="hrf">
+            <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
+        </form>
+    </div>
+
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h3 class="text-white fs-4">Для подключения введите код и имя</h3>
+        <form method="post" class="form-group">
+            <input type="text" class="form-control" name="code">
+            <input type="text" class="form-control" name="name" value="Пользователь">
+            <button type="submit" class="btn btn-primary" name="join">Присоединиться к  комнате</button>
+        </form>
+    </div>
+
+{% endif %}
+<li class="text-white fs-4"> {{ error }}</li>
+
 
 {% endblock %}

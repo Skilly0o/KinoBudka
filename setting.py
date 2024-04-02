@@ -36,7 +36,7 @@ def create_name_room():
     return ''.join(
         random.choices(
             string.ascii_letters + string.digits,
-            k=45
+            k=5
         )
     )
 
