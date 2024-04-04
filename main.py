@@ -118,9 +118,14 @@ def youtube():  # для создания видоса с ютуба
         create = request.form.get("create", False)
 
         if not current_user.is_authenticated:
-            name = 'Пользователь'
+            nick = request.form.get('nick')
+            if nick == '' or nick is None:
+                name = 'Пользователь'
+            else:
+                name = nick
         else:
             name = User.query.filter_by(id=current_user.get_id()).first().username
+
 
         if create != False and url is None:
             print(1)

@@ -84,7 +84,11 @@
         </div>
         <div id="chat-input-container">
             <div id="chat-container"></div>
-            <input id="chat-input" type="text" placeholder="Введите сообщение" class="text-light">
+            {% if current_user.get_id() %}
+                <input id="chat-input" type="text" placeholder="Введите сообщение" class="text-light">
+            {% else %}
+                <p class="text-white fs-5 text-body-secondary">Для доступа к чату войдите в аккаунт.</p>
+            {% endif %}
         </div>
     </div>
     <footer class="container pt-4 my-md-5 border-top" style="margin-top: 2rem!important;">

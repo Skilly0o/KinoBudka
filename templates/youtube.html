@@ -16,7 +16,7 @@ KinBu
     </div>
 
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-        <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
+        <h3 class="text-white fs-4">Для подключения введите код комнаты</h3>
         <form id="joinRoomForm" method="post" class="form-group">
             <input type="text" class="form-control" name="code" id="room">
             <button type="submit" class="btn btn-primary" name="join">Присоединиться к  комнате</button>
@@ -27,15 +27,15 @@ KinBu
         <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
         <form method="post" action="/youtube" class="form-group">
             <input type="text" class="form-control" name="hrf">
+            <input type="text" class="form-control" minlength="1" maxlength="16" name="nick" value="nick">
             <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
         </form>
     </div>
 
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-        <h3 class="text-white fs-4">Для подключения введите код и имя</h3>
+        <h3 class="text-white fs-4">Для подключения введите код</h3>
         <form method="post" class="form-group">
             <input type="text" class="form-control" name="code">
-            <input type="text" class="form-control" name="name" value="Пользователь">
             <button type="submit" class="btn btn-primary" name="join">Присоединиться к  комнате</button>
         </form>
     </div>
