@@ -168,7 +168,7 @@ def room(nameroom):  # room page
         return render_template('youtube.html', user=current_user, error='not room')
     print(rooms[nameroom])
     return render_template("roomyoutube.html", code=nameroom,
-                           url=rooms[nameroom]["url"], messages=rooms[nameroom]["messages"])
+                           url=get_video_id(rooms[nameroom]["url"]), messages=rooms[nameroom]["messages"])
 
 
 @socketio.on("message")

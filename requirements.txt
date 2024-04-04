@@ -1,0 +1,9 @@
+flask
+flask_login
+flask_socketio
+markupsafe
+werkzeug
+flask_sqlalchemy
+dotenv
+pytube
+flask_mail
