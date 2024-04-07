@@ -5,6 +5,24 @@ KinBu
 {% endblock %}
 
 {% block body %}
+<style>
+  .movies {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .movie {
+    width: 20%;
+    margin-bottom: 20px;
+  }
+
+  .movie img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+  }
+</style>
 <h1>Фильмы</h1>
   <div class="movies">
 
@@ -15,6 +33,6 @@ KinBu
           <p>{{ movie[2] }}</p>
         </a>
       </div>
-  </div>
     {% endfor %}
+  </div>
 {% endblock %}

@@ -6,7 +6,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from config.mail_sender import send_email
 from config.user import User
-import sqlite3
 from config.user_login import User_login
 from config.youtube import get_video_id
 from setting import *
@@ -127,7 +126,6 @@ def youtube():  # для создания видоса с ютуба
         else:
             name = User.query.filter_by(id=current_user.get_id()).first().username
 
-
         if create != False and url is None:
             print(1)
             return render_template('youtube.html', user=current_user, error='not url')
@@ -160,11 +158,21 @@ def youtube():  # для создания видоса с ютуба
 @app.route("/films", methods=['GET', 'POST'])
 @login_required
 def films():  # фильмы
+    # задача комунить удалить повторы и как-нибудь обделать страницу
     con = sqlite3.connect('films.db', check_same_thread=False)
     cur = con.cursor()
-    rezult = cur.execute('''select * from films where type == "anime-film"''').fetchall()
-    return render_template('filmslist.html', movies=rezult)
+    rezult = set(cur.execute('''select * from films where type == "anime-film"''').fetchall())  # пока стоит аниме
+    # так как его немного, после над задуматься а то там 20к фильмов кнш есть повторы и эт тож над исправить
+    return render_template('filmslist.html', movies=list(rezult))
 
+
+@app.route("/movie/<id>", methods=['GET', 'POST'])
+@login_required
+def films_info(id):  # инфа фильмы
+    con = sqlite3.connect('films.db', check_same_thread=False)
+    cur = con.cursor()
+    rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
+    return render_template('info_film.html', movie=rezult)
 
 
 @app.route("/test", methods=['GET', 'POST'])
