@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}
+KinBu
+{% endblock %}
+
+{% block body %}
+<h1>Фильмы</h1>
+  <div class="movies">
+
+    {% for movie in movies %}
+      <div class="movie">
+        <a href="/movie/{{ movie[1] }}">
+          <img src="{{ movie[6] }}" alt="{{ movie[2] }}">
+          <p>{{ movie[2] }}</p>
+        </a>
+      </div>
+  </div>
+    {% endfor %}
+{% endblock %}

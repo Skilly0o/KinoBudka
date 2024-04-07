@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 import random
+import sqlite3
 import string
 
 # КОНФИГИ САЙТА КОНСТАНТЫ
@@ -20,7 +21,6 @@ app.config['MAIL_DEFAULT_SENDER'] = 'vanekbadanin@yandex.ru' # ящик почт
 mail = Mail(app) # создание класса для писем
 db = SQLAlchemy(app) # создание класса бд
 
-sess = {}
 
 rooms = {}
 

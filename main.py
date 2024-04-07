@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from config.mail_sender import send_email
 from config.user import User
+import sqlite3
 from config.user_login import User_login
 from config.youtube import get_video_id
 from setting import *
@@ -156,18 +157,24 @@ def youtube():  # для создания видоса с ютуба
     return render_template('youtube.html', user=current_user)
 
 
-
-
-
-
 @app.route("/films", methods=['GET', 'POST'])
 @login_required
-def films():  # для просмотра фильмов
+def films():  # фильмы
+    con = sqlite3.connect('films.db', check_same_thread=False)
+    cur = con.cursor()
+    rezult = cur.execute('''select * from films where type == "anime-film"''').fetchall()
+    return render_template('filmslist.html', movies=rezult)
+
+
+
+@app.route("/test", methods=['GET', 'POST'])
+@login_required
+def player_testing():  # lля теста видео плеера
     return render_template('videoplayer.html')
 
 
 @app.route("/room/<nameroom>", methods=['GET', 'POST'])
-def room(nameroom):  # room page
+def room(nameroom):  # room page для фильмов и видео с ютуба
     if nameroom is None or session.get("name") is None or nameroom not in rooms:
         print(session)
         return render_template('youtube.html', user=current_user, error='not room')
@@ -224,4 +231,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True)
