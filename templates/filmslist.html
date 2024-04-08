@@ -5,32 +5,13 @@ KinBu
 {% endblock %}
 
 {% block body %}
-<style>
-  .movies {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-
-  .movie {
-    width: 20%;
-    margin-bottom: 20px;
-  }
-
-  .movie img {
-    width: 100%;
-    height: auto;
-    border-radius: 5px;
-  }
-</style>
-<h1>Фильмы</h1>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/films.css') }}">
   <div class="movies">
-
     {% for movie in movies %}
       <div class="movie">
-        <a href="/movie/{{ movie[1] }}">
+        <a class="amovie" href="/movie/{{ movie[1] }}">
           <img src="{{ movie[6] }}" alt="{{ movie[2] }}">
-          <p>{{ movie[2] }}</p>
+          <p class="film-title">{{ movie[2] }}</p>
         </a>
       </div>
     {% endfor %}
