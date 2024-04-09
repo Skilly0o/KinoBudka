@@ -138,7 +138,7 @@ def youtube():  # для создания видоса с ютуба
         if create != False:
             if get_video_id(url):
                 room = create_name_room()
-                rooms[room] = {"members": 0, "messages": [], 'url': url}
+                rooms[room] = {"members": 0, "messages": [], 'url': url, 'v': 'video'}
                 session["room"] = room
                 session["name"] = name
                 return redirect(url_for("room", nameroom=room))
@@ -169,6 +169,17 @@ def films():  # фильмы
 @app.route("/movie/<id>", methods=['GET', 'POST'])
 @login_required
 def films_info(id):  # инфа фильмы
+    if request.method == 'POST':
+        con = sqlite3.connect('films.db', check_same_thread=False)
+        cur = con.cursor()
+        rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
+        name = User.query.filter_by(id=current_user.get_id()).first().username
+        url = rezult[5]
+        room = create_name_room()
+        rooms[room] = {"members": 0, "messages": [], 'url': url, 'v': 'film'}
+        session["room"] = room
+        session["name"] = name
+        return redirect(url_for("room", nameroom=room))
     con = sqlite3.connect('films.db', check_same_thread=False)
     cur = con.cursor()
     rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
@@ -188,6 +199,9 @@ def room(nameroom):  # room page для фильмов и видео с ютуб
         print(session)
         return render_template('youtube.html', user=current_user, error='not room')
     print(rooms[nameroom])
+    if rooms[nameroom]["v"] == 'film':
+        return render_template("roomfilm.html", code=nameroom,
+                               url=rooms[nameroom]["url"], messages=rooms[nameroom]["messages"])
     return render_template("roomyoutube.html", code=nameroom,
                            url=get_video_id(rooms[nameroom]["url"]), messages=rooms[nameroom]["messages"])
 
