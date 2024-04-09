@@ -178,7 +178,8 @@ def films_info(id):  # инфа фильмы
 @app.route("/test", methods=['GET', 'POST'])
 @login_required
 def player_testing():  # lля теста видео плеера
-    return render_template('videoplayer.html')
+    ur = 'https://www.youtube.com/watch?v=5lygiL4Y3kU&list=RD5lygiL4Y3kU&start_radio=1'
+    return render_template('test.html', url=get_video_id(ur))
 
 
 @app.route("/room/<nameroom>", methods=['GET', 'POST'])
@@ -239,4 +240,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True)
