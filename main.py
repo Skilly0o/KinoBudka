@@ -186,13 +186,6 @@ def films_info(id):  # инфа фильмы
     return render_template('info_film.html', movie=rezult)
 
 
-@app.route("/test", methods=['GET', 'POST'])
-@login_required
-def player_testing():  # lля теста видео плеера
-    ur = 'https://www.youtube.com/watch?v=5lygiL4Y3kU&list=RD5lygiL4Y3kU&start_radio=1'
-    return render_template('test.html', url=get_video_id(ur))
-
-
 @app.route("/room/<nameroom>", methods=['GET', 'POST'])
 def room(nameroom):  # room page для фильмов и видео с ютуба
     if nameroom is None or session.get("name") is None or nameroom not in rooms:
@@ -233,7 +226,7 @@ def connect(auth):
         return
 
     join_room(room)
-    send({"name": name, "message": "has entered the room"}, to=room)
+    send({"name": name, "message": "Присоединился/ась к комнате."}, to=room)
     rooms[room]["members"] += 1
     print(f"{name} joined room {room}")
 
@@ -249,9 +242,9 @@ def disconnect():
         if rooms[room]["members"] <= 0:
             del rooms[room]
 
-    send({"name": name, "message": "has left the room"}, to=room)
+    send({"name": name, "message": "Покинул/а комнату"}, to=room)
     print(f"{name} has left the room {room}")
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True)
