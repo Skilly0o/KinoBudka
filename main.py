@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
-from flask_socketio import join_room, leave_room, send, SocketIO
+from flask_socketio import join_room, leave_room, send, SocketIO, emit
 from markupsafe import escape
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -213,6 +213,15 @@ def message(data):
     send(content, to=room)
     rooms[room]["messages"].append(content)
     print(f"{session.get('name')} said: {data['data']}")
+
+
+@socketio.on('play_video')
+def on_play_video():
+    room = session.get("room")
+    name = session.get("name")
+    print('Ролик запущен')
+    send({"name": name, "message": "Запустил ролик"}, to=room)
+    emit('play_video', broadcast=False, to=room)
 
 
 @socketio.on("connect")
