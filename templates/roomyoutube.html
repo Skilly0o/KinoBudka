@@ -23,7 +23,6 @@
 <div id="video-block">
     <div id="video-container">
         <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="{{ url }}"></div>
-        <button onclick="playVideo()">Воспроизвести</button>
     </div>
     <div id="chat-input-container">
         <div id="chat-container"></div>
@@ -67,19 +66,26 @@
   const messages = document.getElementById("chat-container");
   const chatInput = document.getElementById("chat-input");
 
-  function playVideo() {
-        // ваш код для запуска видео, например, через Plyr API или другие средства
-        player.play();
-
-        // Отправка события о запуске видео через Socket.IO
-        socketio.emit('play_video');
-    }
-
-    // Обработка события с сервера об изменении состояния видео (если нужно)
-    socketio.on('play_video', function() {
-        // ваш код для синхронного запуска видео на этом клиенте
-        player.play();
+  player.on('pause', event => {
+        // Отправка события о паузе видео через Socket.IO
+        socketio.emit('pause_video');
     });
+
+    // Обработка события с сервера об изменении состояния видео на паузу
+    socketio.on('pause_video', function() {
+        player.pause();
+    });
+
+      // Обработка события запуска ролика
+    player.on('play', event => {
+        // Отправка события о запуске ролика через Socket.IO
+        socketio.emit('play_video');
+    });
+
+   // Обработка события с сервера об изменении состояния видео
+   socketio.on('play_video', function() {
+       player.play();
+   });
 
 
   const createMessage = (name, msg) => {
@@ -108,8 +114,6 @@
       sendMessage();
     }
   });
-
-
 
 
 </script>

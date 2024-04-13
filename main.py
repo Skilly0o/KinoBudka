@@ -224,6 +224,15 @@ def on_play_video():
     emit('play_video', broadcast=False, to=room)
 
 
+@socketio.on('pause_video')
+def on_stop_video():
+    room = session.get("room")
+    name = session.get("name")
+    print('Ролик остановлен')
+    send({"name": name, "message": "Остановил ролик"}, to=room)
+    emit('pause_video', broadcast=False, to=room)
+
+
 @socketio.on("connect")
 def connect(auth):
     room = session.get("room")
