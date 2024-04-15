@@ -1,5 +1,3 @@
-from flask_mail import Message
-from setting import mail
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -15,7 +13,6 @@ def send_email(sender_email, subject, body):
     message['From'] = sender_email
     message['To'] = 'kinobudka100@gmail.com'
     message['Subject'] = subject
-
     # Добавление тела письма
     message.attach(MIMEText(body, 'plain'))
 
