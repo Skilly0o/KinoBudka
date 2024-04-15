@@ -65,9 +65,9 @@ def login():  # вход пользователя
 def support():  # поддержка ( обратная связь)
     if request.method == 'POST':
         email = request.form['email']
-        # !!ДОРАБОТАТЬ!!
-        print(email)
-        if send_email(email, 'Тест письмо', 'типикал текст'):
+        subject = request.form['subject']
+        body = request.form['body']
+        if send_email(email, subject, body):
             return f'Done {email}'
         return 'Error'
     return render_template('support.html', user=current_user)
