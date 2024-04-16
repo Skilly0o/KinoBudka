@@ -66,7 +66,7 @@ def support():  # поддержка ( обратная связь)
     if request.method == 'POST':
         email = request.form['email']
         subject = request.form['subject']
-        body = f"Message by {email} \n{request.form['body']}"
+        body = f"Сообщение отправлено пользователем {email} \n{'-' * 92} \n {request.form['body']}"
         if send_email(email, subject, body):
             return f'Done {email}'
         return 'Error'

@@ -2,7 +2,6 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-
 def send_email(sender_email, subject, body):
     # Заполните эти поля вашими данными
     receiver_email = "kinobudka100@gmail.com"  # gmail почта, к которой привязан пароль приложения
@@ -13,7 +12,7 @@ def send_email(sender_email, subject, body):
     message['From'] = sender_email
     message['To'] = 'kinobudka100@gmail.com'
     message['Subject'] = subject
-    # Добавление тела письма
+    # Добавление тела письмаs
     message.attach(MIMEText(body, 'plain'))
 
     # Создание объекта сессии SMTP
@@ -22,6 +21,7 @@ def send_email(sender_email, subject, body):
     session.login(receiver_email, password)  # Авторизация на сервере
 
     # Отправка сообщения
+    print(message.as_bytes())
     session.sendmail(sender_email, receiver_email, message.as_string())
     session.quit()
 
