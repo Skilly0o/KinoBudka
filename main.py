@@ -139,6 +139,11 @@ def youtube():  # для создания видоса с ютуба
             if get_video_id(url):
                 room = create_name_room()
                 rooms[room] = {"members": 0, "messages": [], 'url': url, 'v': 'video'}
+                content = {
+                    "name": 'KinBu',
+                    "message": f'Имя комнаты: {room}'
+                }
+                rooms[room]["messages"].append(content)
                 session["room"] = room
                 session["name"] = name
                 return redirect(url_for("room", nameroom=room))
@@ -177,6 +182,11 @@ def films_info(id):  # инфа фильмы
         url = rezult[5]
         room = create_name_room()
         rooms[room] = {"members": 0, "messages": [], 'url': url, 'v': 'film'}
+        content = {
+            "name": 'KinBu',
+            "message": f'Имя комнаты: {room}'
+        }
+        rooms[room]["messages"].append(content)
         session["room"] = room
         session["name"] = name
         return redirect(url_for("room", nameroom=room))
@@ -188,9 +198,15 @@ def films_info(id):  # инфа фильмы
 
 @app.route("/room/<nameroom>", methods=['GET', 'POST'])
 def room(nameroom):  # room page для фильмов и видео с ютуба
+
+    if current_user.is_authenticated:
+        session["room"] = nameroom
+        session["name"] = User.query.filter_by(id=current_user.get_id()).first().username
+
     if nameroom is None or session.get("name") is None or nameroom not in rooms:
         print(session)
-        return render_template('youtube.html', user=current_user, error='not room')
+        return render_template('error.html', error='not_room')
+
     print(rooms[nameroom])
     if rooms[nameroom]["v"] == 'film':
         return render_template("roomfilm.html", code=nameroom,
@@ -219,8 +235,9 @@ def message(data):
 def on_play_video():
     room = session.get("room")
     name = session.get("name")
+    if room not in rooms:
+        return
     print('Ролик запущен')
-    send({"name": name, "message": "Запустил ролик"}, to=room)
     emit('play_video', broadcast=False, to=room)
 
 
@@ -228,8 +245,9 @@ def on_play_video():
 def on_stop_video():
     room = session.get("room")
     name = session.get("name")
+    if room not in rooms:
+        return
     print('Ролик остановлен')
-    send({"name": name, "message": "Остановил ролик"}, to=room)
     emit('pause_video', broadcast=False, to=room)
 
 
@@ -265,4 +283,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True)
