@@ -6,6 +6,11 @@ KinBu
 
 {% block body %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/films.css') }}">
+  <div class="film-form">
+      <form action="#" method="post">
+        <input type="text" name="filmname" class="film-input" placeholder="Фильмы, сериалы">
+      </form>
+  </div>
   <div class="movies">
     {% for movie in movies %}
       <div class="movie">

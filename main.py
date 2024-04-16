@@ -165,10 +165,15 @@ def youtube():  # для создания видоса с ютуба
 def films():  # фильмы
     # задача комунить удалить повторы и как-нибудь обделать страницу
     con = sqlite3.connect('films.db', check_same_thread=False)
-    cur = con.cursor()
-    rezult = set(cur.execute('''select * from films where type == "anime-film"''').fetchall())  # пока стоит аниме
+    cur = con.cursor()  # пока стоит аниме
     # так как его немного, после над задуматься а то там 20к фильмов кнш есть повторы и эт тож над исправить
-    return render_template('filmslist.html', movies=list(rezult))
+    name = ""
+    if request.method == 'POST':
+        name = request.form.get("filmname")
+    elif request.method == 'GET':
+        pass
+    rezult = set(cur.execute(f'''select * from films''').fetchall())
+    return render_template('filmslist.html', movies=filter(lambda x: name.lower() in x[2].lower(), list(rezult)))
 
 
 @app.route("/movie/<id>", methods=['GET', 'POST'])
