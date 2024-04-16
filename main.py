@@ -57,7 +57,7 @@ def login():  # вход пользователя
             userlogin = User_login().create(user)
             login_user(userlogin)  # Если все совпало то логинем пользователя перенаправляя его в профиль
             return redirect(url_for('profile'))
-    flash('Не вернные данные', 'error')
+    flash('Неверные данные', 'error')
     return render_template('login.html')
 
 
@@ -66,7 +66,7 @@ def support():  # поддержка ( обратная связь)
     if request.method == 'POST':
         email = request.form['email']
         subject = request.form['subject']
-        body = f"Сообщение отправлено пользователем {email} \n{'-' * 92} \n {request.form['body']}"
+        body = f"Сообщение отправлено пользователем {email} \n{'-' * 92} \n{request.form['body']}"
         if send_email(email, subject, body):
             return f'Done {email}'
         return 'Error'
@@ -283,4 +283,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
