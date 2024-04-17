@@ -61,6 +61,27 @@ def login():  # вход пользователя
     return render_template('login.html')
 
 
+@app.route("/abuse", methods=['GET', 'POST'])
+def abuse():  # для авторов в случае нарушения АП ( обратная связь)
+    if request.method == 'POST':
+        email = request.form['email']
+        org = request.form['org']
+        contact = request.form['contact']
+        url = request.form['url']
+        url_autor = request.form['body']
+        subject = 'Нарушение АП'
+        body = f'''Сообщение отправлено пользователем {email} 
+        \n{'-' * 92} 
+        \nОрганизация-{org}
+        \nЛицо-{contact}
+        \nНарушение-{url}
+        \nПодтверждение прав-{url_autor}'''
+        if send_email(email, subject, body):
+            return render_template('error.html', error='abuse')
+        return render_template('error.html', error='mail_error')
+    return render_template('support.html', user=current_user)
+
+
 @app.route("/support", methods=['GET', 'POST'])
 def support():  # поддержка ( обратная связь)
     if request.method == 'POST':
@@ -68,8 +89,8 @@ def support():  # поддержка ( обратная связь)
         subject = request.form['subject']
         body = f"Сообщение отправлено пользователем {email} \n{'-' * 92} \n{request.form['body']}"
         if send_email(email, subject, body):
-            return f'Done {email}'
-        return 'Error'
+            return render_template('error.html', error='supp')
+        return render_template('error.html', error='mail_error')
     return render_template('support.html', user=current_user)
 
 
@@ -163,17 +184,16 @@ def youtube():  # для создания видоса с ютуба
 @app.route("/films", methods=['GET', 'POST'])
 @login_required
 def films():  # фильмы
-    # задача комунить удалить повторы и как-нибудь обделать страницу
     con = sqlite3.connect('films.db', check_same_thread=False)
-    cur = con.cursor()  # пока стоит аниме
-    # так как его немного, после над задуматься а то там 20к фильмов кнш есть повторы и эт тож над исправить
+    cur = con.cursor()
     name = ""
     if request.method == 'POST':
         name = request.form.get("filmname")
     elif request.method == 'GET':
         pass
-    rezult = set(cur.execute(f'''select * from films''').fetchall())
-    return render_template('filmslist.html', movies=filter(lambda x: name.lower() in x[2].lower(), list(rezult)))
+    rezult = cur.execute(f'''select * from films''').fetchall()
+    return render_template('filmslist.html', movies=filter(lambda x: name.lower() in x[2].lower(), list(rezult)),
+                           lenmovies=len(list(filter(lambda x: name.lower() in x[2].lower(), list(rezult)))))
 
 
 @app.route("/movie/<id>", methods=['GET', 'POST'])
@@ -288,4 +308,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True)

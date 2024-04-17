@@ -12,13 +12,17 @@ KinBu
       </form>
   </div>
   <div class="movies">
-    {% for movie in movies %}
-      <div class="movie">
-        <a class="amovie" href="/movie/{{ movie[1] }}">
-          <img src="{{ movie[6] }}" alt="{{ movie[2] }}">
-          <p class="film-title">{{ movie[2] }}</p>
-        </a>
-      </div>
-    {% endfor %}
+    {% if lenmovies == 0 %}
+      <h3 class="text-white">Ничего не найдено</h3>
+    {% else %}
+      {% for movie in movies %}
+        <div class="movie">
+          <a class="amovie" href="/movie/{{ movie[1] }}">
+            <img src="{{ movie[6] }}" alt="{{ movie[2] }}">
+            <p class="film-title">{{ movie[2] }}</p>
+          </a>
+        </div>
+      {% endfor %}
+    {% endif %}
   </div>
 {% endblock %}

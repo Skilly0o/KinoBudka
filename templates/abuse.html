@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}
+KinBu
+{% endblock %}
+
+{% block body %}
+    <style>
+        .form-control{
+            margin: 0px;}
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/support.css') }}">
+    <form method="post" class="form-group">
+        <div class="mb-3">
+              <label for="exampleFormControlTextarea1" class="form-label">Организация</label>
+              <textarea class="form-control" name="org"  id="exampleFormControlTextarea3" rows="1"></textarea>
+        </div>
+
+        <div class="mb-3">
+              <label for="exampleFormControlTextarea1" class="form-label">Контактное лицо</label>
+              <textarea class="form-control" name="contact"  id="exampleFormControlTextarea4" rows="1"></textarea>
+        </div>
+
+        <div class="mb-3">
+              <label for="exampleFormControlInput1" class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+        </div>
+        <div class="mb-3">
+              <label for="exampleFormControlTextarea1" class="form-label">
+                Прямые ссылки на страницы ресурса, информация с которых подлежит удалению </label>
+              <textarea class="form-control" name="url"  id="exampleFormControlTextarea1" rows="1"></textarea>
+        </div>
+        <div class="mb-3">
+              <label for="exampleFormControlTextarea2" class="form-label">
+                Ссылка на документ, свидетельствующий о наличии у Вас исключительных прав на материал, размещенный на сайте
+              </label>
+              <textarea class="form-control" name="body" id="exampleFormControlTextarea2" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+            <button class="form-button bg-primary" type='submit'>
+                Отправить
+            </button>
+        </div>
+    </form>
+{% endblock %}
