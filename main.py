@@ -1,3 +1,5 @@
+import sqlite3
+
 from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from flask_socketio import join_room, leave_room, send, SocketIO, emit
@@ -64,22 +66,18 @@ def login():  # вход пользователя
 @app.route("/abuse", methods=['GET', 'POST'])
 def abuse():  # для авторов в случае нарушения АП ( обратная связь)
     if request.method == 'POST':
-        email = request.form['email']
-        org = request.form['org']
-        contact = request.form['contact']
-        url = request.form['url']
-        url_autor = request.form['body']
+        email = str(request.form['email'])
+        org = str(request.form['org'])
+        contact = str(request.form['contact'])
+        url = str(request.form['url'])
+        url_autor = str(request.form['body'])
         subject = 'Нарушение АП'
-        body = f'''Сообщение отправлено пользователем {email} 
-        \n{'-' * 92} 
-        \nОрганизация-{org}
-        \nЛицо-{contact}
-        \nНарушение-{url}
-        \nПодтверждение прав-{url_autor}'''
+        body = f"пользователь {email} Организация-{org} Лицо-{contact} Нарушение-{url} Права-{url_autor}"
+        print(body)
         if send_email(email, subject, body):
             return render_template('error.html', error='abuse')
         return render_template('error.html', error='mail_error')
-    return render_template('support.html', user=current_user)
+    return render_template('abuse.html', user=current_user)
 
 
 @app.route("/support", methods=['GET', 'POST'])
