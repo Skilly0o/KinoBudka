@@ -5,6 +5,7 @@ from flask_login import LoginManager, login_user, login_required, current_user, 
 from flask_socketio import join_room, leave_room, send, SocketIO, emit
 from markupsafe import escape
 from werkzeug.security import generate_password_hash, check_password_hash
+from googletrans import Translator
 
 from config.mail_sender import send_email
 from config.user import User
@@ -71,10 +72,11 @@ def abuse():  # для авторов в случае нарушения АП ( 
         contact = str(request.form['contact'])
         url = str(request.form['url'])
         url_autor = str(request.form['body'])
-        subject = 'Нарушение АП'
-        body = f"пользователь {email} Организация-{org} Лицо-{contact} Нарушение-{url} Права-{url_autor}"
-        print(body)
-        if send_email(email, subject, body):
+        subject = 'AP violation'
+        translator = Translator()
+        body = f"User {email}\n Org-{org} Name-{contact}\n violation-{url} Autor-{url_autor}"
+        body_tran = translator.translate(body, dest='en')
+        if send_email(email, subject, body_tran.text):
             return render_template('error.html', error='abuse')
         return render_template('error.html', error='mail_error')
     return render_template('abuse.html', user=current_user)
@@ -85,8 +87,10 @@ def support():  # поддержка ( обратная связь)
     if request.method == 'POST':
         email = request.form['email']
         subject = request.form['subject']
-        body = f"Сообщение отправлено пользователем {email} \n{'-' * 92} \n{request.form['body']}"
-        if send_email(email, subject, body):
+        translator = Translator()
+        body = f"User {email} \n{'-' * 92} \n{request.form['body']}"
+        body_tran = translator.translate(body, dest='en')
+        if send_email(email, subject, body_tran.text.replace(u"\u2018", "'").replace(u"\u2019", "'")):
             return render_template('error.html', error='supp')
         return render_template('error.html', error='mail_error')
     return render_template('support.html', user=current_user)

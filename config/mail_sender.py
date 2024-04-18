@@ -14,10 +14,10 @@ def send_email(sender_email, subject, body):
     message['To'] = 'kinobudka100@gmail.com'
     message['Subject'] = subject
     # Добавление тела письма
-    message.attach(MIMEText(body, 'plain'))
+    message.attach(MIMEText(body, 'plain', 'utf-8'))
 
     # Создание объекта сессии SMTP
-    session = smtplib.SMTP('pop.gmail.com', 25)  # Укажите здесь свой SMTP сервер
+    session = smtplib.SMTP('smtp.gmail.com', 587)  # Укажите здесь свой SMTP сервер
     session.starttls()  # Активация шифрования
     session.login(receiver_email, password)  # Авторизация на сервере
 
