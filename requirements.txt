@@ -2,6 +2,7 @@ flask
 flask_login
 flask_socketio
 googletrans==3.1.0a0
+flask-admin
 markupsafe
 werkzeug
 flask_sqlalchemy
