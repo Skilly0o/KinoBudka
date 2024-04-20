@@ -1,4 +1,5 @@
 import sqlite3
+import random
 
 from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import LoginManager, login_user, logout_user
@@ -49,9 +50,13 @@ def get_session():
     return 'Значение переменной value в сессии: {}'.format(escape(value))
 
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def hello():  # главная страница ( надо сделать отображение бд с фильмами да и обдумать каак украсить ее
-    return render_template('total.html')
+    con = sqlite3.connect('films.db', check_same_thread=False)
+    cur = con.cursor()
+    rezult = cur.execute(f'''select * from films''').fetchall()
+    random_data = random.sample(rezult, 5)
+    return render_template('total.html', image=random_data)
 
 
 @app.route("/info")
