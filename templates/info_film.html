@@ -5,14 +5,21 @@ KinBu
 {% endblock %}
 
 {% block body %}
-<h1>{{ movie[2] }}</h1>
-  <img src="{{ movie[6] }}" alt="{{ movie[2] }}">
-  <p>{{ movie[3] }}</p>
-    <p> Год выпуска {{ movie[4] }}</p>
-  <p>Рейтинг: топ наверн(удалить info_film) xd</p>
-  <form id="createRoomForm" method="post" class="form-group">
-    <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
-  </form>
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/info-film.css') }}">
+<div class="movie-block">
+  <div class="movie-header">
+      <div class="movie-img"><img src="{{ movie[6] }}" alt="{{ movie[2] }}"></div>
+  </div>
+  <div class="movie-info">
+      <h1 class="movie-title">{{ movie[2] }}</h1>
+      <div class="info">
+          <p>{{ movie[3] }}</p>
+          <p> Год выпуска {{ movie[4] }}</p>
+      </div>
+      <form id="createRoomForm" method="post" class="form-group">
+              <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
+          </form>
+  </div>
+</div>
 
 {% endblock %}
