@@ -1,0 +1,29 @@
+.movie-block {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 5%;
+    color: white;
+   }
+
+.movie-header {
+    }
+
+.movie-info {
+    flex-basis: 40%;
+}
+.movie-header {
+    display: flex;
+    justify-items: left;
+    align-items: center;
+    flex-direction: column;
+    flex-basis: 30%;}
+.movie-img img{
+    width: 400px;
+    height: 500px;
+    border-radius: 10px;
+}
+.info {
+    font-size: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;}
