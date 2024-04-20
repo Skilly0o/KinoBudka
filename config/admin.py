@@ -10,9 +10,9 @@ class MyAdminIndexView(AdminIndexView):
     # Метод для проверки доступа к админке
     @login_required
     def is_accessible(self):
-        username = User.query.filter_by(id=current_user.get_id()).first().username
+        role = User.query.filter_by(id=current_user.get_id()).first().role
         # В этом примере проверяется, является ли пользователь администратором
-        return username == 'Skilly'
+        return str(role).lower() == 'admin'
 
 
 # Создаем класс представления модели с ограниченным доступом
@@ -21,10 +21,10 @@ class MyModelView(ModelView):
     @login_required
     def is_accessible(self):
         # Возвращаем True, если текущий пользователь имеет доступ
-        username = User.query.filter_by(id=current_user.get_id()).first().username
+        role = User.query.filter_by(id=current_user.get_id()).first().role
         # В этом примере проверяется, является ли пользователь администратором
-        return username == 'Skilly' # В будущем сделать через класс user колонкой с правами пользователь/админ
+        return str(role).lower() == 'admin'
 
 
 # Добавляем представления моделей в админку с настройками доступа
-admin = Admin(app, name='KinBu Главари', template_mode='bootstrap4', index_view=MyAdminIndexView())
+admin = Admin(app, name='KinBu Администрация', template_mode='bootstrap4', index_view=MyAdminIndexView())

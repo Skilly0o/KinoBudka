@@ -98,7 +98,7 @@ def support():  # поддержка ( обратная связь)
         translator = Translator()
         body = f"User {email} \n{'-' * 92} \n{request.form['body']}"
         body_tran = translator.translate(body, dest='en')
-        if send_email(email, subject, body_tran.text.replace(u"\u2018", "'").replace(u"\u2019", "'")):
+        if send_email(email, subject, body):
             return render_template('error.html', error='supp')
         return render_template('error.html', error='mail_error')
     return render_template('support.html', user=current_user)
@@ -129,7 +129,10 @@ def register():  # регистрация пользователя
 def profile():  # профиль пользователя
     username = User.query.filter_by(id=current_user.get_id()).first().username
     email = User.query.filter_by(id=current_user.get_id()).first().email
-    return render_template('profile.html', name=username, mail=email)
+    role = User.query.filter_by(id=current_user.get_id()).first().role
+    if role == 'user':
+        return render_template('profile.html', name=username, mail=email, role='Пользователь')
+    return render_template('profile.html', name=username, mail=email, role='Администратор')
 
 
 @app.route("/logout")

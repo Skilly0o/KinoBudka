@@ -8,12 +8,9 @@ import string
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db' # класс бд
+app.config['SQLALCHEMY_DATABASE_URI_1'] = 'sqlite:///users.db' # класс бд
 app.config['SECRET_KEY'] = 'SDK234LFJ45Ssl546di453ujckld23cs' # секретный ключ
 
-app.config['MAIL_SERVER'] = 'smtp.yandex.ru' # сервер почты для обратно связи ПОМЕНЯТЬ
-app.config['MAIL_PORT'] = 465 # порт для почты
-app.config['MAIL_USE_TLS'] = True # хз че эт но оно нужно
 mail = Mail(app) # создание класса для писем
 db = SQLAlchemy(app) # создание класса бд
 
