@@ -12,6 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from config.admin import *
 from config.mail_sender import send_email
 from config.user import User
+from config.films import Films
 from config.user_login import User_login
 from config.youtube import get_video_id
 from setting import *
@@ -20,6 +21,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 socketio = SocketIO(app)
 admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(Films, db.session))
 
 
 @app.errorhandler(403)

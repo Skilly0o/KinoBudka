@@ -8,7 +8,11 @@ import string
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI_1'] = 'sqlite:///users.db' # класс бд
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db' # класс бд
+app.config['SQLALCHEMY_BINDS'] = {
+    'user_db': 'sqlite:///users.db',
+    'films_db': 'sqlite:///films.db'
+}
 app.config['SECRET_KEY'] = 'SDK234LFJ45Ssl546di453ujckld23cs' # секретный ключ
 
 mail = Mail(app) # создание класса для писем
