@@ -12,6 +12,31 @@ KinBu
           <p class="text-white fs-5 text-body-secondary">Данной комнаты не существует</p>
           <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/">На главную</a>
     </div>
+{% elif error == 'abuse' %}
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+          <h1 class="text-white display-4 fw-normal text-body-emphasis">Спасибо за обращение!</h1>
+          <p class="text-white fs-5 text-body-secondary">Контент будет удален в течении 24 часов</p>
+          <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/">На главную</a>
+    </div>
+{% elif error == 'mail_error' %}
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+          <h1 class="text-white display-4 fw-normal text-body-emphasis">Ошибка отправки формы</h1>
+          <p class="text-white fs-5 text-body-secondary">Попробуйте еще раз или напишите нам на прямую - kinobudka100@gmail.com</p>
+          <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/">На главную</a>
+    </div>
+{% elif error == 'supp' %}
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+          <h1 class="text-white display-4 fw-normal text-body-emphasis">Спасибо за обращение!</h1>
+          <p class="text-white fs-5 text-body-secondary">Ваш вопрос успешно отправлен</p>
+          <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/">На главную</a>
+    </div>
+
+{% elif error == '403' %}
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+          <h1 class="text-white display-4 fw-normal text-body-emphasis">Доступ запрещен!</h1>
+          <p class="text-white fs-5 text-body-secondary">Увас нет прав просматривать данную страницу</p>
+          <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/">На главную</a>
+    </div>
 {% else %}
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
           <h1 class="text-white display-4 fw-normal text-body-emphasis">Ошибка</h1>

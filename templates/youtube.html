@@ -7,6 +7,7 @@ KinBu
 {% block body %}
 
 {% if user.is_authenticated %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/youtube.css') }}">
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
         <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
         <form id="createRoomForm" method="post" action="/youtube" class="form-group">

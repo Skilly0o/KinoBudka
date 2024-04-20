@@ -1,18 +1,31 @@
+import sqlite3
+from functools import wraps
+
 from flask import render_template, redirect, url_for, flash, request, session
+from flask_admin.contrib.sqla import ModelView
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from flask_socketio import join_room, leave_room, send, SocketIO, emit
+from googletrans import Translator
 from markupsafe import escape
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from config.admin import *
 from config.mail_sender import send_email
 from config.user import User
 from config.user_login import User_login
 from config.youtube import get_video_id
 from setting import *
 
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 socketio = SocketIO(app)
+admin.add_view(MyModelView(User, db.session))
+
+
+@app.errorhandler(403)
+def access_forbidden(e):
+    return render_template('error.html', error='403'), 403
 
 
 @login_manager.user_loader
@@ -57,8 +70,26 @@ def login():  # вход пользователя
             userlogin = User_login().create(user)
             login_user(userlogin)  # Если все совпало то логинем пользователя перенаправляя его в профиль
             return redirect(url_for('profile'))
-    flash('Не вернные данные', 'error')
+    flash('Неверные данные', 'error')
     return render_template('login.html')
+
+
+@app.route("/abuse", methods=['GET', 'POST'])
+def abuse():  # для авторов в случае нарушения АП ( обратная связь)
+    if request.method == 'POST':
+        email = str(request.form['email'])
+        org = str(request.form['org'])
+        contact = str(request.form['contact'])
+        url = str(request.form['url'])
+        url_autor = str(request.form['body'])
+        subject = 'Нарушение АП'
+        translator = Translator()
+        body = f"User {email}\n Org-{org} Name-{contact}\n violation-{url} Autor-{url_autor}"
+        body_tran = translator.translate(body, dest='en')
+        if send_email(email, subject, body_tran.text):
+            return render_template('error.html', error='abuse')
+        return render_template('error.html', error='mail_error')
+    return render_template('abuse.html', user=current_user)
 
 
 @app.route("/support", methods=['GET', 'POST'])
@@ -66,10 +97,12 @@ def support():  # поддержка ( обратная связь)
     if request.method == 'POST':
         email = request.form['email']
         subject = request.form['subject']
-        body = f"Сообщение отправлено пользователем {email} \n{'-' * 92} \n {request.form['body']}"
-        if send_email(email, subject, body):
-            return f'Done {email}'
-        return 'Error'
+        translator = Translator()
+        body = f"User {email} \n{'-' * 92} \n{request.form['body']}"
+        body_tran = translator.translate(body, dest='en')
+        if send_email(email, subject, body_tran.text.replace(u"\u2018", "'").replace(u"\u2019", "'")):
+            return render_template('error.html', error='supp')
+        return render_template('error.html', error='mail_error')
     return render_template('support.html', user=current_user)
 
 
@@ -139,6 +172,11 @@ def youtube():  # для создания видоса с ютуба
             if get_video_id(url):
                 room = create_name_room()
                 rooms[room] = {"members": 0, "messages": [], 'url': url, 'v': 'video'}
+                content = {
+                    "name": 'KinBu',
+                    "message": f'Имя комнаты: {room}'
+                }
+                rooms[room]["messages"].append(content)
                 session["room"] = room
                 session["name"] = name
                 return redirect(url_for("room", nameroom=room))
@@ -158,12 +196,16 @@ def youtube():  # для создания видоса с ютуба
 @app.route("/films", methods=['GET', 'POST'])
 @login_required
 def films():  # фильмы
-    # задача комунить удалить повторы и как-нибудь обделать страницу
     con = sqlite3.connect('films.db', check_same_thread=False)
     cur = con.cursor()
-    rezult = set(cur.execute('''select * from films where type == "anime-film"''').fetchall())  # пока стоит аниме
-    # так как его немного, после над задуматься а то там 20к фильмов кнш есть повторы и эт тож над исправить
-    return render_template('filmslist.html', movies=list(rezult))
+    name = ""
+    if request.method == 'POST':
+        name = request.form.get("filmname")
+    elif request.method == 'GET':
+        pass
+    rezult = cur.execute(f'''select * from films''').fetchall()
+    return render_template('filmslist.html', movies=filter(lambda x: name.lower() in x[2].lower(), list(rezult)),
+                           lenmovies=len(list(filter(lambda x: name.lower() in x[2].lower(), list(rezult)))))
 
 
 @app.route("/movie/<id>", methods=['GET', 'POST'])
@@ -177,6 +219,11 @@ def films_info(id):  # инфа фильмы
         url = rezult[5]
         room = create_name_room()
         rooms[room] = {"members": 0, "messages": [], 'url': url, 'v': 'film'}
+        content = {
+            "name": 'KinBu',
+            "message": f'Имя комнаты: {room}'
+        }
+        rooms[room]["messages"].append(content)
         session["room"] = room
         session["name"] = name
         return redirect(url_for("room", nameroom=room))
@@ -188,9 +235,15 @@ def films_info(id):  # инфа фильмы
 
 @app.route("/room/<nameroom>", methods=['GET', 'POST'])
 def room(nameroom):  # room page для фильмов и видео с ютуба
+
+    if current_user.is_authenticated:
+        session["room"] = nameroom
+        session["name"] = User.query.filter_by(id=current_user.get_id()).first().username
+
     if nameroom is None or session.get("name") is None or nameroom not in rooms:
         print(session)
-        return render_template('youtube.html', user=current_user, error='not room')
+        return render_template('error.html', error='not_room')
+
     print(rooms[nameroom])
     if rooms[nameroom]["v"] == 'film':
         return render_template("roomfilm.html", code=nameroom,
@@ -219,8 +272,9 @@ def message(data):
 def on_play_video():
     room = session.get("room")
     name = session.get("name")
+    if room not in rooms:
+        return
     print('Ролик запущен')
-    send({"name": name, "message": "Запустил ролик"}, to=room)
     emit('play_video', broadcast=False, to=room)
 
 
@@ -228,8 +282,9 @@ def on_play_video():
 def on_stop_video():
     room = session.get("room")
     name = session.get("name")
+    if room not in rooms:
+        return
     print('Ролик остановлен')
-    send({"name": name, "message": "Остановил ролик"}, to=room)
     emit('pause_video', broadcast=False, to=room)
 
 
@@ -265,4 +320,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True)
