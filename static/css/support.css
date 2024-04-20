@@ -1,0 +1,16 @@
+.form-control {
+    border-radius: 5px;
+    border: none;
+    background: #191b1e;
+    color: white;
+    border: 1px solid #757171;
+    padding: 5px;
+}
+.mb-3 {
+    margin: 0 auto;
+}
+.form-control:focus {
+    background: #191b1e;
+    -webkit-box-shadow: 3px 3px 24px 7px rgba(50,51,51,0.5);
+    box-shadow: 3px 3px 24px 7px rgba(50,51,51,0.5);
+}

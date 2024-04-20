@@ -16,6 +16,7 @@ from config.user_login import User_login
 from config.youtube import get_video_id
 from setting import *
 
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
