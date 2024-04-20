@@ -16,6 +16,7 @@ from config.user_login import User_login
 from config.youtube import get_video_id
 from setting import *
 
+
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 socketio = SocketIO(app)
@@ -25,6 +26,7 @@ admin.add_view(MyModelView(User, db.session))
 @app.errorhandler(403)
 def access_forbidden(e):
     return render_template('error.html', error='403'), 403
+
 
 @login_manager.user_loader
 def load_user(user_id):  # функция загрузки пользователя
