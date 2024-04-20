@@ -1,25 +1,25 @@
 import sqlite3
-from functools import wraps
 
 from flask import render_template, redirect, url_for, flash, request, session
-from flask_admin.contrib.sqla import ModelView
-from flask_login import LoginManager, login_user, login_required, current_user, logout_user
+from flask_login import LoginManager, login_user, logout_user
 from flask_socketio import join_room, leave_room, send, SocketIO, emit
 from googletrans import Translator
 from markupsafe import escape
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from config.admin import *
+from config.films import Films
 from config.mail_sender import send_email
 from config.user import User
-from config.films import Films
 from config.user_login import User_login
 from config.youtube import get_video_id
 from setting import *
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
 socketio = SocketIO(app)
+
 admin.add_view(MyModelView(User, db.session))
 admin.add_view(MyModelView(Films, db.session))
 
@@ -27,6 +27,7 @@ admin.add_view(MyModelView(Films, db.session))
 @app.errorhandler(403)
 def access_forbidden(e):
     return render_template('error.html', error='403'), 403
+
 
 @login_manager.user_loader
 def load_user(user_id):  # функция загрузки пользователя
