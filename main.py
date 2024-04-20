@@ -116,6 +116,15 @@ def register():  # регистрация пользователя
     return render_template('reg.html')
 
 
+@app.route("/admin")
+@login_required
+def admin():  # админ пользователm
+    role = User.query.filter_by(id=current_user.get_id()).first().role
+    return render_template('profile.html')
+
+
+
+
 @app.route("/profile")
 @login_required
 def profile():  # профиль пользователя
