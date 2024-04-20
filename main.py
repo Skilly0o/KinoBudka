@@ -116,11 +116,14 @@ def register():  # регистрация пользователя
     return render_template('reg.html')
 
 
-@app.route("/admin")
+@app.route("/admin/")
 @login_required
 def admin():  # админ пользователm
     role = User.query.filter_by(id=current_user.get_id()).first().role
-    return render_template('profile.html')
+    print(role)
+    if role != 'admin':
+        return redirect(url_for('profile'))
+    return render_template('admin.html')
 
 
 

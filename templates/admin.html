@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+  background-color: #272727;
+  color: #FFFFFF;
+}
+
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #333333;
+  color: #FFFFFF;
+}
+
+input[type=submit] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+.container {
+  width: 50%;
+  margin: 0 auto;
+  padding: 20px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Поиск пользователей и фильмов</h2>
+  <form action="/admin" method="get">
+    <label for="searchUsers">Поиск пользователей:</label>
+    <input type="text" id="searchUsers" name="searchUsers">
+
+    <label for="searchMovies">Поиск фильмов по ID:</label>
+    <input type="text" id="searchMovies" name="searchMovies">
+
+    <input type="submit" value="Найти">
+  </form>
+</div>
+
+</body>
+</html>
