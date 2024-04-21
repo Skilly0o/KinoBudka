@@ -53,7 +53,7 @@ def get_session():
 
 @app.route("/", methods=['GET', 'POST'])
 def hello():  # главная страница ( надо сделать отображение бд с фильмами да и обдумать каак украсить ее
-    con = sqlite3.connect('films.db', check_same_thread=False)
+    con = sqlite3.connect('instance/films.db', check_same_thread=False)
     cur = con.cursor()
     rezult = cur.execute(f'''select * from films''').fetchall()
     random_data = random.sample(rezult, 5)
@@ -187,6 +187,11 @@ def youtube():  # для создания видоса с ютуба
                     "message": f'Имя комнаты: {room}'
                 }
                 rooms[room]["messages"].append(content)
+                content = {
+                    "name": 'KinBu',
+                    "message": f'Приятного просмотра ^-^'
+                }
+                rooms[room]["messages"].append(content)
                 session["room"] = room
                 session["name"] = name
                 return redirect(url_for("room", nameroom=room))
@@ -232,6 +237,11 @@ def films_info(id):  # инфа фильмы
         content = {
             "name": 'KinBu',
             "message": f'Имя комнаты: {room}'
+        }
+        rooms[room]["messages"].append(content)
+        content = {
+            "name": 'KinBu',
+            "message": f'Приятного просмотра ^-^'
         }
         rooms[room]["messages"].append(content)
         session["room"] = room
