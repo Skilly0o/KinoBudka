@@ -1,15 +1,15 @@
 import sqlite3
-from functools import wraps
+import random
 
 from flask import render_template, redirect, url_for, flash, request, session
-from flask_admin.contrib.sqla import ModelView
-from flask_login import LoginManager, login_user, login_required, current_user, logout_user
+from flask_login import LoginManager, login_user, logout_user
 from flask_socketio import join_room, leave_room, send, SocketIO, emit
 from googletrans import Translator
 from markupsafe import escape
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from config.admin import *
+from config.films import Films
 from config.mail_sender import send_email
 from config.user import User
 from config.user_login import User_login
@@ -19,8 +19,11 @@ from setting import *
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
 socketio = SocketIO(app)
+
 admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(Films, db.session))
 
 
 @app.errorhandler(403)
@@ -48,9 +51,13 @@ def get_session():
     return 'Значение переменной value в сессии: {}'.format(escape(value))
 
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def hello():  # главная страница ( надо сделать отображение бд с фильмами да и обдумать каак украсить ее
-    return render_template('total.html')
+    con = sqlite3.connect('films.db', check_same_thread=False)
+    cur = con.cursor()
+    rezult = cur.execute(f'''select * from films''').fetchall()
+    random_data = random.sample(rezult, 5)
+    return render_template('total.html', image=random_data)
 
 
 @app.route("/info")
@@ -100,7 +107,7 @@ def support():  # поддержка ( обратная связь)
         translator = Translator()
         body = f"User {email} \n{'-' * 92} \n{request.form['body']}"
         body_tran = translator.translate(body, dest='en')
-        if send_email(email, subject, body_tran.text.replace(u"\u2018", "'").replace(u"\u2019", "'")):
+        if send_email(email, subject, body):
             return render_template('error.html', error='supp')
         return render_template('error.html', error='mail_error')
     return render_template('support.html', user=current_user)
@@ -131,7 +138,10 @@ def register():  # регистрация пользователя
 def profile():  # профиль пользователя
     username = User.query.filter_by(id=current_user.get_id()).first().username
     email = User.query.filter_by(id=current_user.get_id()).first().email
-    return render_template('profile.html', name=username, mail=email)
+    role = User.query.filter_by(id=current_user.get_id()).first().role
+    if role == 'user':
+        return render_template('profile.html', name=username, mail=email, role='Пользователь')
+    return render_template('profile.html', name=username, mail=email, role='Администратор')
 
 
 @app.route("/logout")
