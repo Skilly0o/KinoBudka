@@ -22,8 +22,8 @@ login_manager.login_view = 'login'
 
 socketio = SocketIO(app)
 
-admin.add_view(MyModelView(User, db.session))
-admin.add_view(MyModelView(Films, db.session))
+admin.add_view(UserModelView(User, db.session))
+admin.add_view(FilmModelView(Films, db.session))
 
 
 @app.errorhandler(403)
@@ -206,7 +206,7 @@ def youtube():  # для создания видоса с ютуба
 @app.route("/films", methods=['GET', 'POST'])
 @login_required
 def films():  # фильмы
-    con = sqlite3.connect('films.db', check_same_thread=False)
+    con = sqlite3.connect('instance/films.db', check_same_thread=False)
     cur = con.cursor()
     name = ""
     if request.method == 'POST':
@@ -222,7 +222,7 @@ def films():  # фильмы
 @login_required
 def films_info(id):  # инфа фильмы
     if request.method == 'POST':
-        con = sqlite3.connect('films.db', check_same_thread=False)
+        con = sqlite3.connect('instance/films.db', check_same_thread=False)
         cur = con.cursor()
         rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
         name = User.query.filter_by(id=current_user.get_id()).first().username
@@ -237,7 +237,7 @@ def films_info(id):  # инфа фильмы
         session["room"] = room
         session["name"] = name
         return redirect(url_for("room", nameroom=room))
-    con = sqlite3.connect('films.db', check_same_thread=False)
+    con = sqlite3.connect('instance/films.db', check_same_thread=False)
     cur = con.cursor()
     rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
     return render_template('info_film.html', movie=rezult)
@@ -330,4 +330,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=8000)
+    socketio.run(app, debug=True)
