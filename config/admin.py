@@ -1,4 +1,4 @@
-from flask_admin import Admin, AdminIndexView
+from flask_admin import *
 from flask_admin.contrib.sqla import ModelView
 from flask_login import current_user, login_required
 
@@ -16,11 +16,22 @@ class MyAdminIndexView(AdminIndexView):
 
 
 # Создаем класс представления модели с ограниченным доступом
-class MyModelView(ModelView):
-    # Метод для проверки доступа к представлению модели
+class UserModelView(ModelView):
+    column_searchable_list = ['username']
+    column_exclude_list = ['password']
+
     @login_required
     def is_accessible(self):
-        # Возвращаем True, если текущий пользователь имеет доступ
+        role = User.query.filter_by(id=current_user.get_id()).first().role
+        # В этом примере проверяется, является ли пользователь администратором
+        return str(role).lower() == 'admin'
+
+
+class FilmModelView(ModelView):
+    column_searchable_list = ['id']
+
+    @login_required
+    def is_accessible(self):
         role = User.query.filter_by(id=current_user.get_id()).first().role
         # В этом примере проверяется, является ли пользователь администратором
         return str(role).lower() == 'admin'
