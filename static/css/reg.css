@@ -58,12 +58,15 @@ input[type="submit"]:hover {
 }
 .back-button {
     display: inline-block;
+    color: gray;
     border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
     cursor: pointer;
     margin-top: 10px;
     margin-left: 10px;
+    text-decoration: none;
+}
+.back-button:hover{
+    color: inherit;
 }
 .button {
     display: inline-block;

@@ -5,13 +5,12 @@ KinBu
 {% endblock %}
 
 {% block body %}
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/youtube.css') }}">
 {% if user.is_authenticated %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/youtube.css') }}">
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
         <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
         <form id="createRoomForm" method="post" action="/youtube" class="form-group">
-            <input type="text" class="form-control" name="hrf" id="hrf">
+            <input type="text" class="form-control" name="hrf" id="hrf" placeholder="Введите ссылку">
             <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
         </form>
     </div>
@@ -19,7 +18,7 @@ KinBu
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
         <h3 class="text-white fs-4">Для подключения введите код комнаты</h3>
         <form id="joinRoomForm" method="post" class="form-group">
-            <input type="text" class="form-control" name="code" id="room">
+            <input type="text" class="form-control" placeholder="Введите код" name="code" id="room">
             <button type="submit" class="btn btn-primary" name="join">Присоединиться к  комнате</button>
         </form>
     </div>
@@ -27,8 +26,8 @@ KinBu
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
         <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
         <form method="post" action="/youtube" class="form-group">
-            <input type="text" class="form-control" name="hrf">
-            <input type="text" class="form-control" minlength="1" maxlength="16" name="nick" value="nick">
+            <input type="text" class="form-control" name="hrf" placeholder="Введите ссылку">
+            <input type="text" class="form-control" style="color: white;"minlength="1" maxlength="16" name="nick" placeholder="Имя пользователя">
             <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
         </form>
     </div>
@@ -36,7 +35,7 @@ KinBu
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
         <h3 class="text-white fs-4">Для подключения введите код</h3>
         <form method="post" class="form-group">
-            <input type="text" class="form-control" name="code">
+            <input type="text" class="form-control" name="code" placeholder="Введите код">
             <button type="submit" class="btn btn-primary" name="join">Присоединиться к  комнате</button>
         </form>
     </div>
