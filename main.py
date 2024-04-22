@@ -188,6 +188,11 @@ def youtube():  # для создания видоса с ютуба
                     "message": f'Имя комнаты: {room}'
                 }
                 rooms[room]["messages"].append(content)
+                content = {
+                    "name": 'KinBu',
+                    "message": f'Приятного просмотра ^-^'
+                }
+                rooms[room]["messages"].append(content)
                 session["room"] = room
                 session["name"] = name
                 return redirect(url_for("room", nameroom=room))
@@ -233,6 +238,11 @@ def films_info(id):  # инфа фильмы
         content = {
             "name": 'KinBu',
             "message": f'Имя комнаты: {room}'
+        }
+        rooms[room]["messages"].append(content)
+        content = {
+            "name": 'KinBu',
+            "message": f'Приятного просмотра ^-^'
         }
         rooms[room]["messages"].append(content)
         session["room"] = room
