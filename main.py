@@ -41,12 +41,14 @@ def load_user(user_id):  # функция загрузки пользовате�
 
 
 @app.route('/set_session/<value>')
+@login_required
 def set_session(value):
     session['value'] = value
     return 'Значение переменной value сохранено в сессии.'
 
 
 @app.route('/get_session')
+@login_required
 def get_session():
     value = session.get('value', 'Not set')
     return 'Значение переменной value в сессии: {}'.format(escape(value))
@@ -276,7 +278,6 @@ def room(nameroom):  # room page для фильмов и видео с ютуб
 @socketio.on("message")
 def message(data):
     room = session.get("room")
-    print(session)
     if room not in rooms:
         return
 
@@ -286,7 +287,6 @@ def message(data):
     }
     send(content, to=room)
     rooms[room]["messages"].append(content)
-    print(f"{session.get('name')} said: {data['data']}")
 
 
 @socketio.on('play_video')
@@ -295,7 +295,6 @@ def on_play_video():
     name = session.get("name")
     if room not in rooms:
         return
-    print('Ролик запущен')
     emit('play_video', broadcast=False, to=room)
 
 
@@ -305,7 +304,6 @@ def on_stop_video():
     name = session.get("name")
     if room not in rooms:
         return
-    print('Ролик остановлен')
     emit('pause_video', broadcast=False, to=room)
 
 
