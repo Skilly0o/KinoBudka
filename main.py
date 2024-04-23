@@ -16,6 +16,22 @@ from config.user_login import User_login
 from config.youtube import get_video_id
 from setting import *
 
+import os
+from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
+from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileAllowed
+from wtforms import SubmitField
+from PIL import Image, ImageDraw
+import requests
+import sqlite3
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(basedir, 'uploads')
+
+photos = UploadSet('photos', IMAGES)
+configure_uploads(app, photos)
+# максимальный размер файла, по умолчанию 16MB
+patch_request_class(app)
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -133,15 +149,75 @@ def register():  # регистрация пользователя
     return render_template('reg.html')
 
 
-@app.route("/profile")
+@app.route("/profile", methods=['GET', 'POST'])
 @login_required
 def profile():  # профиль пользователя
     username = User.query.filter_by(id=current_user.get_id()).first().username
     email = User.query.filter_by(id=current_user.get_id()).first().email
     role = User.query.filter_by(id=current_user.get_id()).first().role
+    ava = User.query.filter_by(id=current_user.get_id()).first().avatar
+
+    def prepare_mask(size, antialias=2):
+        mask = Image.new('L', (size[0] * antialias, size[1] * antialias), 0)
+        ImageDraw.Draw(mask).ellipse((0, 0) + mask.size, fill=255)
+        return mask.resize(size, Image.Resampling.LANCZOS)
+
+    def crop(im, s):
+        w, h = im.size
+        k = w / s[0] - h / s[1]
+        if k > 0:
+            im = im.crop(((w - h) / 2, 0, (w + h) / 2, h))
+        elif k < 0:
+            im = im.crop((0, (h - w) / 2, w, (h + w) / 2))
+        return im.resize(s, Image.Resampling.LANCZOS)
+
+    def convert_to_binary_data(filename):
+        # Преобразование данных в двоичный формат
+        with open(filename, 'rb') as file:
+            blob_data = file.read()
+        return blob_data
+
+    class UploadForm(FlaskForm):
+        photo = FileField(validators=[FileAllowed(photos, 'Image only!'),
+                                      FileRequired('File was empty!')])
+        submit = SubmitField('Поменять авaтарку')
+
+    form = UploadForm()
+    if form.validate_on_submit():
+        filename = photos.save(form.photo.data)
+        file_url = photos.url(filename)
+
+        response = requests.get(file_url, stream=True).raw
+        img = Image.open(response)
+        # изменяем размер
+        im = crop(img, (200, 200))
+        im.putalpha(prepare_mask((200, 200), 4))
+        im.save('uploads/image114.png')
+        file_url = photos.url('image114.png')
+
+        #sqlite_connection = sqlite3.connect('users.db')
+        #cursor = sqlite_connection.cursor()
+        #print("Подключен к SQLite")
+#
+        #sqlite_insert_blob_query = f"""UPDATE user
+        #SET avatar = (?)
+        #WHERE id == {9}"""
+#
+        #emp_photo = convert_to_binary_data('uploads/image114.png')
+        ## Преобразование данных в формат кортежа
+        #data_tuple = (emp_photo)
+        #print(99)
+        #cursor.execute(sqlite_insert_blob_query, data_tuple).fetchall()
+        #sqlite_connection.commit()
+        #print("Изображение и файл успешно вставлены как BLOB в таблиу")
+        #cursor.close()
+        #os.remove('image111.png')
+
+    else:
+        file_url = photos.url('image114.png')
     if role == 'user':
-        return render_template('profile.html', name=username, mail=email, role='Пользователь')
-    return render_template('profile.html', name=username, mail=email, role='Администратор')
+        return render_template('profile.html', name=username, mail=email, role='Пользователь', avatar='image111.png', form=form, file_url=file_url)
+    return render_template('profile.html', name=username, mail=email, role='Администратор', avatar='image111.png', form=form, file_url=file_url)
 
 
 @app.route("/logout")

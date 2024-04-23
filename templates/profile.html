@@ -22,7 +22,18 @@
 </div>
   <div class="container">
     <div class="profile">
-      <div class="profilepicture"></div>
+        {% if file_url %}
+        <br>
+        <img src="{{ file_url }}" alt="image111.png">
+        {% endif %}
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            {{ form.photo }}
+            {% for error in form.photo.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+            {{ form.submit }}
+        </form>
       <h1 class="profilename">{{ name }}</h1>
       <p class="profileinfo">{{ role }}</p>
       <div class="profiledetails">
