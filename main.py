@@ -23,7 +23,8 @@ from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import SubmitField
 from PIL import Image, ImageDraw
 import requests
-import sqlite3
+from sqlalchemy.sql import text
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(basedir, 'uploads')
@@ -40,6 +41,13 @@ socketio = SocketIO(app)
 
 admin.add_view(MyModelView(User, db.session))
 admin.add_view(MyModelView(Films, db.session))
+
+
+def convert_to_binary_data(filename):
+    # Преобразование данных в двоичный формат
+    with open(filename, 'rb') as file:
+        blob_data = file.read()
+    return blob_data
 
 
 @app.errorhandler(403)
@@ -73,6 +81,7 @@ def hello():  # главная страница ( надо сделать ото
     cur = con.cursor()
     rezult = cur.execute(f'''select * from films''').fetchall()
     random_data = random.sample(rezult, 5)
+    print(random_data)
     return render_template('total.html', image=random_data)
 
 
@@ -136,7 +145,9 @@ def register():  # регистрация пользователя
         email = request.form['email']
         password = request.form['password']
         n_psw = generate_password_hash(password)
-        user = User(username=name, email=email, password=n_psw)  # берем из запроса данные и создаем пользователля
+        emp_photo = convert_to_binary_data('uploads/image114.png')
+
+        user = User(username=name, email=email, password=n_psw, avatar=emp_photo)  # берем из запроса данные и создаем пользователля
         try:
             db.session.add(user)  # если все ок добавляем в базу данных и сохраняем
             db.session.commit()  # перенапрявляя пользователя на страницу входа
@@ -171,12 +182,6 @@ def profile():  # профиль пользователя
             im = im.crop((0, (h - w) / 2, w, (h + w) / 2))
         return im.resize(s, Image.Resampling.LANCZOS)
 
-    def convert_to_binary_data(filename):
-        # Преобразование данных в двоичный формат
-        with open(filename, 'rb') as file:
-            blob_data = file.read()
-        return blob_data
-
     class UploadForm(FlaskForm):
         photo = FileField(validators=[FileAllowed(photos, 'Image only!'),
                                       FileRequired('File was empty!')])
@@ -192,29 +197,27 @@ def profile():  # профиль пользователя
         # изменяем размер
         im = crop(img, (200, 200))
         im.putalpha(prepare_mask((200, 200), 4))
-        im.save('uploads/image114.png')
-        file_url = photos.url('image114.png')
+        im.save('uploads/image113.png')
+        os.remove('uploads/' + filename)
 
-        #sqlite_connection = sqlite3.connect('users.db')
-        #cursor = sqlite_connection.cursor()
-        #print("Подключен к SQLite")
-#
-        #sqlite_insert_blob_query = f"""UPDATE user
-        #SET avatar = (?)
-        #WHERE id == {9}"""
-#
-        #emp_photo = convert_to_binary_data('uploads/image114.png')
-        ## Преобразование данных в формат кортежа
-        #data_tuple = (emp_photo)
-        #print(99)
-        #cursor.execute(sqlite_insert_blob_query, data_tuple).fetchall()
-        #sqlite_connection.commit()
-        #print("Изображение и файл успешно вставлены как BLOB в таблиу")
-        #cursor.close()
-        #os.remove('image111.png')
+        emp_photo = convert_to_binary_data('uploads/image113.png')
+        os.remove('uploads/image113.png')
+        query = "UPDATE user SET avatar = :ava WHERE id = :id"
+        parameters = {"ava": emp_photo, "id": 9}
 
+        stmt = text(query)
+        db.session.execute(stmt, parameters)
+        db.session.commit()
     else:
-        file_url = photos.url('image114.png')
+        parameters = {"id": 9}
+        query = """SELECT avatar from user where id = :id"""
+
+        stmt = text(query)
+        foto = db.session.execute(stmt, parameters).fetchall()
+
+        with open(f'uploads/{parameters["id"]}.png', 'wb') as file:
+            file.write(foto[0][0])
+        file_url = photos.url(f'{parameters["id"]}.png')
     if role == 'user':
         return render_template('profile.html', name=username, mail=email, role='Пользователь', avatar='image111.png', form=form, file_url=file_url)
     return render_template('profile.html', name=username, mail=email, role='Администратор', avatar='image111.png', form=form, file_url=file_url)
@@ -225,6 +228,8 @@ def profile():  # профиль пользователя
 def logout():  # выход пользователя
     logout_user()
     flash('You logout', 'success')
+    id = 9
+    os.remove(f'uploads/{id}.png')
     return redirect(url_for('login'))
 
 
