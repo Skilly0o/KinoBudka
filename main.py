@@ -84,7 +84,7 @@ def hello():  # главная страница ( надо сделать ото
     cur = con.cursor()
     rezult = cur.execute(f'''select * from films''').fetchall()
     random_data = random.sample(rezult, 5)
-    return render_template('total.html', image=random_data)
+    return render_template('total.html', movie=random_data)
 
 
 @app.route("/info")
