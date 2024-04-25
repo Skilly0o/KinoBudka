@@ -84,7 +84,6 @@ def hello():  # главная страница ( надо сделать ото
     cur = con.cursor()
     rezult = cur.execute(f'''select * from films''').fetchall()
     random_data = random.sample(rezult, 5)
-    print(random_data)
     return render_template('total.html', image=random_data)
 
 
@@ -190,6 +189,7 @@ def profile():  # профиль пользователя
                                       FileRequired('File was empty!')])
         submit = SubmitField('Поменять авaтарку')
 
+    # замена аватарки
     form = UploadForm()
     if form.validate_on_submit():
         filename = photos.save(form.photo.data)
@@ -203,6 +203,7 @@ def profile():  # профиль пользователя
         im.save('uploads/image113.png')
         os.remove('uploads/' + filename)
 
+        # Загркжаем аватарку в базу данных
         emp_photo = convert_to_binary_data('uploads/image113.png')
         os.remove('uploads/image113.png')
         query = "UPDATE user SET avatar = :ava WHERE id = :id"

@@ -21,7 +21,18 @@
             </nav>
         </div>
         <div class="profile-block">
-            <div class="profilepicture"></div>
+            {% if file_url %}
+            <br>
+            <img src="{{ file_url }}" alt="image111.png">
+            {% endif %}
+            <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                {{ form.photo }}
+                {% for error in form.photo.errors %}
+                <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+                {{ form.submit }}
+            </form>
             <h1 class="profilename">{{ name }}</h1>
             <p class="profileinfo">{{ role }}</p>
             <div class="profiledetails">
@@ -61,52 +72,4 @@
         </div>
     </footer>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-  <title>User Profile</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
-</head>
-<body>
-<div class="container d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
-    <a href="/" class="d-flex align-items-center link-body-emphasis text-decoration-none">
-        <span class="text-white fs-4">KinoBudka</span>
-    </a>
-    <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-        <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/info">О нас</a>
-        <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/support">Поддержка</a>
-        <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/youtube">YouTube</a>
-        <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/films">Фильмы</a>
-        <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/logout">Выйти</a>
-    </nav>
-</div>
-  <div class="container">
-    <div class="profile">
-        {% if file_url %}
-        <br>
-        <img src="{{ file_url }}" alt="image111.png">
-        {% endif %}
-        <form method="POST" enctype="multipart/form-data">
-            {{ form.hidden_tag() }}
-            {{ form.photo }}
-            {% for error in form.photo.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-            {{ form.submit }}
-        </form>
-      <h1 class="profilename">{{ name }}</h1>
-      <p class="profileinfo">{{ role }}</p>
-      <div class="profiledetails">
-        <dl>
-          <dt>Id:</dt>
-          <dd>{{ current_user.get_id() }}</dd>
-        </dl>
-        <dl>
-          <dt>Email:</dt>
-          <dd>{{ mail }}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
-</body>
 </html>
