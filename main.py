@@ -203,13 +203,24 @@ def profile():  # профиль пользователя
         emp_photo = convert_to_binary_data('uploads/image113.png')
         os.remove('uploads/image113.png')
         query = "UPDATE user SET avatar = :ava WHERE id = :id"
-        parameters = {"ava": emp_photo, "id": 9}
+        id = current_user.get_id()
+        parameters = {"ava": emp_photo, "id": id}
 
         stmt = text(query)
         db.session.execute(stmt, parameters)
         db.session.commit()
+
+        query = """SELECT avatar from user where id = :id"""
+
+        stmt = text(query)
+        foto = db.session.execute(stmt, parameters).fetchall()
+
+        with open(f'uploads/{parameters["id"]}.png', 'wb') as file:
+            file.write(foto[0][0])
+        file_url = photos.url(f'{parameters["id"]}.png')
     else:
-        parameters = {"id": 9}
+        id = current_user.get_id()
+        parameters = {"id": id}
         query = """SELECT avatar from user where id = :id"""
 
         stmt = text(query)
@@ -223,12 +234,12 @@ def profile():  # профиль пользователя
     return render_template('profile.html', name=username, mail=email, role='Администратор', avatar='image111.png', form=form, file_url=file_url)
 
 
-@app.route("/logout")
+@app.route("/logout", methods=['GET', 'POST'])
 @login_required
 def logout():  # выход пользователя
+    id = current_user.get_id()
     logout_user()
     flash('You logout', 'success')
-    id = 9
     os.remove(f'uploads/{id}.png')
     return redirect(url_for('login'))
 
