@@ -39,9 +39,10 @@ login_manager.login_view = 'login'
 
 socketio = SocketIO(app)
 
-admin.add_view(MyModelView(User, db.session))
-admin.add_view(MyModelView(Films, db.session))
+admin.add_view(UserModelView(User, db.session))
+admin.add_view(FilmModelView(Films, db.session))
 
+TOKEN = '0ZQWR0F-514MCGT-GB84PY1-ZK93RG2'
 
 def convert_to_binary_data(filename):
     # Преобразование данных в двоичный формат
@@ -64,12 +65,14 @@ def load_user(user_id):  # функция загрузки пользовате�
 
 
 @app.route('/set_session/<value>')
+@login_required
 def set_session(value):
     session['value'] = value
     return 'Значение переменной value сохранено в сессии.'
 
 
 @app.route('/get_session')
+@login_required
 def get_session():
     value = session.get('value', 'Not set')
     return 'Значение переменной value в сессии: {}'.format(escape(value))
@@ -77,7 +80,7 @@ def get_session():
 
 @app.route("/", methods=['GET', 'POST'])
 def hello():  # главная страница ( надо сделать отображение бд с фильмами да и обдумать каак украсить ее
-    con = sqlite3.connect('films.db', check_same_thread=False)
+    con = sqlite3.connect('instance/films.db', check_same_thread=False)
     cur = con.cursor()
     rezult = cur.execute(f'''select * from films''').fetchall()
     random_data = random.sample(rezult, 5)
@@ -279,6 +282,11 @@ def youtube():  # для создания видоса с ютуба
                     "message": f'Имя комнаты: {room}'
                 }
                 rooms[room]["messages"].append(content)
+                content = {
+                    "name": 'KinBu',
+                    "message": f'Приятного просмотра ^-^'
+                }
+                rooms[room]["messages"].append(content)
                 session["room"] = room
                 session["name"] = name
                 return redirect(url_for("room", nameroom=room))
@@ -298,7 +306,7 @@ def youtube():  # для создания видоса с ютуба
 @app.route("/films", methods=['GET', 'POST'])
 @login_required
 def films():  # фильмы
-    con = sqlite3.connect('films.db', check_same_thread=False)
+    con = sqlite3.connect('instance/films.db', check_same_thread=False)
     cur = con.cursor()
     name = ""
     if request.method == 'POST':
@@ -314,7 +322,7 @@ def films():  # фильмы
 @login_required
 def films_info(id):  # инфа фильмы
     if request.method == 'POST':
-        con = sqlite3.connect('films.db', check_same_thread=False)
+        con = sqlite3.connect('instance/films.db', check_same_thread=False)
         cur = con.cursor()
         rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
         name = User.query.filter_by(id=current_user.get_id()).first().username
@@ -326,10 +334,15 @@ def films_info(id):  # инфа фильмы
             "message": f'Имя комнаты: {room}'
         }
         rooms[room]["messages"].append(content)
+        content = {
+            "name": 'KinBu',
+            "message": f'Приятного просмотра ^-^'
+        }
+        rooms[room]["messages"].append(content)
         session["room"] = room
         session["name"] = name
         return redirect(url_for("room", nameroom=room))
-    con = sqlite3.connect('films.db', check_same_thread=False)
+    con = sqlite3.connect('instance/films.db', check_same_thread=False)
     cur = con.cursor()
     rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
     return render_template('info_film.html', movie=rezult)
@@ -357,7 +370,6 @@ def room(nameroom):  # room page для фильмов и видео с ютуб
 @socketio.on("message")
 def message(data):
     room = session.get("room")
-    print(session)
     if room not in rooms:
         return
 
@@ -367,7 +379,6 @@ def message(data):
     }
     send(content, to=room)
     rooms[room]["messages"].append(content)
-    print(f"{session.get('name')} said: {data['data']}")
 
 
 @socketio.on('play_video')
@@ -376,7 +387,6 @@ def on_play_video():
     name = session.get("name")
     if room not in rooms:
         return
-    print('Ролик запущен')
     emit('play_video', broadcast=False, to=room)
 
 
@@ -386,7 +396,6 @@ def on_stop_video():
     name = session.get("name")
     if room not in rooms:
         return
-    print('Ролик остановлен')
     emit('pause_video', broadcast=False, to=room)
 
 

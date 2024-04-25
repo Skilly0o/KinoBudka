@@ -1,3 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,500;1,500&display=swap');
+
+.body {
+  font-family: "Inter Tight", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
 .form-label{
     color: white;
 }

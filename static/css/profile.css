@@ -1,14 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital@0;1&family=Roboto+Condensed:ital@0;1&display=swap');
+
 body {
-  font-family: Arial, sans-serif;
-  background-color: #191b1e;
-  margin: 0;
-  padding: 0;
+    font-family: "Roboto Condensed", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    background-color: #191b1e;
+    margin: 0;
+    padding: 0;
 }
 
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+.profile-block {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 10px;
+    -webkit-box-shadow: 0px 1px 8px 0px rgba(145, 154, 161, 0.4);
+    -moz-box-shadow: 0px 1px 8px 0px rgba(145, 154, 161, 0.4);
+    box-shadow: 0px 1px 8px 0px rgba(145, 154, 161, 0.4);
+    color: white;
 }
 
 .profile {
@@ -47,7 +57,6 @@ body {
   justify-content: space-between;
   margin-bottom: 10px;
 }
-
 .profiledetails dt {
   font-weight: bold;
 }
