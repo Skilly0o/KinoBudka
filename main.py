@@ -13,7 +13,7 @@ from config.films import Films
 from config.mail_sender import send_email
 from config.user import User
 from config.user_login import User_login
-from config.youtube import get_video_id
+from config.youtube import get_video_id, get_video_name
 from setting import *
 
 login_manager = LoginManager(app)
@@ -192,10 +192,10 @@ def youtube():  # для создания видоса с ютуба
                 room = create_name_room()
                 if isclose:
                     rooms[room] = {"members": 0, "messages": [], 'url': url,
-                                   'v': 'video', 'admin': name, 'status': 'close'}
+                                   'v': 'video', 'video_name': get_video_name(url), 'admin': name, 'status': 'close'}
                 else:
                     rooms[room] = {"members": 0, "messages": [], 'url': url,
-                                   'v': 'video', 'admin': name, 'status': 'open'}
+                                   'v': 'video', 'video_name': get_video_name(url), 'admin': name, 'status': 'open'}
                 content = {
                     "name": 'KinBu',
                     "message": f'Имя комнаты: {room}'
