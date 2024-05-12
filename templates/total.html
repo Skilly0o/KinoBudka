@@ -9,15 +9,11 @@ KinBu
 <link rel="stylesheet" href="{{ url_for('static', filename='css/total.css') }}">
 <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
     <h1 class="text-white display-4 fw-normal text-body-emphasis">Добро пожаловать на KinBu</h1>
-    <p class="text-white fs-5 text-body-secondary">Сайт для совместного просмотра видео.</p>
-</div>
-<div class="ricing-header p-3 pb-md-4 mx-auto text-center">
-    <h3 class="text-white display-4 fw-normal text-body-emphasis">Советуем к просмотру</h3>
+    <p class="text-white fs-5 text-body-secondary">Сайт для совместного просмотра видео</p>
 </div>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <style>
         /* Стили для карусели */
         .carousel {
@@ -64,15 +60,18 @@ KinBu
             outline: none;
         }
     </style>
-    <div class="carousel">
-        <div class="carousel-slide" id="carousel-slide">
-            <!-- Слайды с фотографиями -->
-            <img src="{{ movie[0][6] }}" alt="Фото 1">
-            <img src="{{ movie[1][6] }}" alt="Фото 2">
-            <img src="{{ movie[2][6] }}" alt="Фото 3">
-        </div>
-    </div>
     {% if user.is_authenticated %}
+        <div class="ricing-header p-3 pb-md-4 mx-auto text-center">
+            <h3 class="text-white display-4 fw-normal text-body-emphasis">Советуем к просмотру</h3>
+        </div>
+        <div class="carousel">
+            <div class="carousel-slide" id="carousel-slide">
+                <!-- Слайды с фотографиями -->
+                <img src="{{ movie[0][6] }}" alt="Фото 1">
+                <img src="{{ movie[1][6] }}" alt="Фото 2">
+                <img src="{{ movie[2][6] }}" alt="Фото 3">
+            </div>
+        </div>
         <div class="ricing-header p-3 pb-md-4 mx-auto text-center">
             <h3 class="text-white display-4 fw-normal text-body-emphasis">Открытые комнаты</h3>
         </div>
@@ -100,6 +99,10 @@ KinBu
         {% else %}
             <p class="movie-empty">Открытых комнат нет :(</p>
         {% endif %}
+    {% else %}
+        <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+            <h2 class="text-white display-4 fw-normal text-body-emphasis fs-5"> Для полного функционирования сайта авторизуйтесь </h2>
+        </div>
     {% endif %}
     <script>
         // Получаем элементы карусели
