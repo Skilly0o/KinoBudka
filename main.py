@@ -59,8 +59,14 @@ def hello():  # главная страница ( надо сделать ото
     con = sqlite3.connect('instance/films.db', check_same_thread=False)
     cur = con.cursor()
     rezult = cur.execute(f'''select * from films''').fetchall()
+    open_values = []
+    for key, value in rooms.items():
+        if value.get('status') == 'open':
+            open_values.append((key, value))
     random_data = random.sample(rezult, 5)
-    return render_template('total.html', image=random_data)
+    return render_template('total.html', movie=random_data, room=open_values, user=current_user)
+
+
 
 
 @app.route("/info")
@@ -162,6 +168,7 @@ def youtube():  # для создания видоса с ютуба
         code = request.form.get("code")
         join = request.form.get("join", False)
         create = request.form.get("create", False)
+        isclose = request.form.get("close")
 
         if not current_user.is_authenticated:
             nick = request.form.get('nick')
@@ -184,7 +191,12 @@ def youtube():  # для создания видоса с ютуба
         if create != False:
             if get_video_id(url):
                 room = create_name_room()
-                rooms[room] = {"members": 0, "messages": [], 'url': url, 'v': 'video'}
+                if isclose:
+                    rooms[room] = {"members": 0, "messages": [], 'url': url,
+                                   'v': 'video', 'admin': name, 'status': 'close'}
+                else:
+                    rooms[room] = {"members": 0, "messages": [], 'url': url,
+                                   'v': 'video', 'admin': name,  'status': 'open'}
                 content = {
                     "name": 'KinBu',
                     "message": f'Имя комнаты: {room}'
@@ -230,13 +242,19 @@ def films():  # фильмы
 @login_required
 def films_info(id):  # инфа фильмы
     if request.method == 'POST':
+        isclose = request.form.get("close")
         con = sqlite3.connect('instance/films.db', check_same_thread=False)
         cur = con.cursor()
         rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
         name = User.query.filter_by(id=current_user.get_id()).first().username
         url = rezult[5]
         room = create_name_room()
-        rooms[room] = {"members": 0, "messages": [], 'url': url, 'v': 'film'}
+        if isclose:
+            rooms[room] = {"members": 0, "messages": [], 'url': url,
+                           'v': 'film', 'admin': name, 'status': 'close'}
+        else:
+            rooms[room] = {"members": 0, "messages": [], 'url': url,
+                           'v': 'film', 'admin': name, 'status': 'open'}
         content = {
             "name": 'KinBu',
             "message": f'Имя комнаты: {room}'
