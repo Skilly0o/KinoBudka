@@ -78,9 +78,14 @@ KinBu
         </div>
         {% if room  %}
             {% for r in room %}
+            <a href="./room/{{ r[0] }}" style="text-decoration: none;">
                 <div class="movie-rooms">
                     <p class="rooms_film text-white">
-                        Название фильма: {{ r[1]['filmname'] }}
+                        {% if r[1]['v'] == 'film' %}
+                            Название фильма: {{ r[1]['filmname'] }}
+                        {% else %}
+                            Название видео: {{ r[1]['video_name'] }}
+                        {% endif %}
                     </p>
                     <p class="rooms_name text-white">
                         Имя комнаты: {{ r[0] }}
@@ -90,6 +95,7 @@ KinBu
                     </p>
 
                 </div>
+            </a>
             {% endfor %}
         {% else %}
             <p class="movie-empty">Открытых комнат нет :(</p>
