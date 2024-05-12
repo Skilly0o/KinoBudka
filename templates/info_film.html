@@ -7,21 +7,23 @@ KinBu
 {% block body %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/info-film.css') }}">
 <div class="movie-block">
-  <div class="movie-header">
-      <div class="movie-img"><img src="{{ movie[6] }}" alt="{{ movie[2] }}"></div>
-  </div>
-  <div class="movie-info">
-      <h1 class="movie-title">{{ movie[2] }}</h1>
-      <div class="info">
-          <p>{{ movie[3] }}</p>
-          <p> Год выпуска {{ movie[4] }}</p>
-      </div>
-      <form id="createRoomForm" method="post" class="form-group">
-              <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
-          <input type="checkbox" id="close" name="close" />
+    <div class="movie-header">
+        <div class="movie-img"><img src="{{ movie[6] }}" alt="{{ movie[2] }}"></div>
+    </div>
+    <div class="movie-info">
+        <h1 class="movie-title">{{ movie[2] }}</h1>
+        <div class="info">
+            <p>{{ movie[3] }}</p>
+            <p> Год выпуска {{ movie[4] }}</p>
+        </div>
+        <form id="createRoomForm" method="post" class="form-group">
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 10px;" name="create">Создать комнату
+            </button>
+            <br>
+            <input type="checkbox" id="close" name="close"/>
             <label class="text-white fs-7" for="close">Закрытая комната</label>
-      </form>
-  </div>
+        </form>
+    </div>
 </div>
 
 {% endblock %}

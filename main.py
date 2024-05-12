@@ -16,7 +16,6 @@ from config.user_login import User_login
 from config.youtube import get_video_id
 from setting import *
 
-
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -26,6 +25,7 @@ admin.add_view(UserModelView(User, db.session))
 admin.add_view(FilmModelView(Films, db.session))
 
 TOKEN = '0ZQWR0F-514MCGT-GB84PY1-ZK93RG2'
+
 
 @app.errorhandler(403)
 def access_forbidden(e):
@@ -64,9 +64,8 @@ def hello():  # главная страница ( надо сделать ото
         if value.get('status') == 'open':
             open_values.append((key, value))
     random_data = random.sample(rezult, 5)
+
     return render_template('total.html', movie=random_data, room=open_values, user=current_user)
-
-
 
 
 @app.route("/info")
@@ -196,7 +195,7 @@ def youtube():  # для создания видоса с ютуба
                                    'v': 'video', 'admin': name, 'status': 'close'}
                 else:
                     rooms[room] = {"members": 0, "messages": [], 'url': url,
-                                   'v': 'video', 'admin': name,  'status': 'open'}
+                                   'v': 'video', 'admin': name, 'status': 'open'}
                 content = {
                     "name": 'KinBu',
                     "message": f'Имя комнаты: {room}'
@@ -246,15 +245,16 @@ def films_info(id):  # инфа фильмы
         con = sqlite3.connect('instance/films.db', check_same_thread=False)
         cur = con.cursor()
         rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
+        film_name = rezult[2]
         name = User.query.filter_by(id=current_user.get_id()).first().username
         url = rezult[5]
         room = create_name_room()
         if isclose:
             rooms[room] = {"members": 0, "messages": [], 'url': url,
-                           'v': 'film', 'admin': name, 'status': 'close'}
+                           'v': 'film', 'filmname': film_name, 'admin': name, 'status': 'close'}
         else:
             rooms[room] = {"members": 0, "messages": [], 'url': url,
-                           'v': 'film', 'admin': name, 'status': 'open'}
+                           'v': 'film', 'filmname': film_name, 'admin': name, 'status': 'open'}
         content = {
             "name": 'KinBu',
             "message": f'Имя комнаты: {room}'
