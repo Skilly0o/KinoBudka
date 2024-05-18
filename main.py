@@ -280,6 +280,7 @@ def room(nameroom):  # room page для фильмов и видео с ютуб
     if current_user.is_authenticated:
         session["room"] = nameroom
         session["name"] = User.query.filter_by(id=current_user.get_id()).first().username
+        session["role"] = User.query.filter_by(id=current_user.get_id()).first().role
 
     if nameroom is None or session.get("name") is None or nameroom not in rooms:
         print(session)
@@ -288,8 +289,10 @@ def room(nameroom):  # room page для фильмов и видео с ютуб
     print(rooms[nameroom])
     if rooms[nameroom]["v"] == 'film':
         return render_template("roomfilm.html", code=nameroom,
+                               role=User.query.filter_by(id=current_user.get_id()).first().role,
                                url=rooms[nameroom]["url"], messages=rooms[nameroom]["messages"])
     return render_template("roomyoutube.html", code=nameroom,
+                           role=User.query.filter_by(id=current_user.get_id()).first().role,
                            url=get_video_id(rooms[nameroom]["url"]), messages=rooms[nameroom]["messages"])
 
 
@@ -301,6 +304,7 @@ def message(data):
 
     content = {
         "name": session.get("name"),
+        'role': session.get("role"),
         "message": data["data"]
     }
     send(content, to=room)
