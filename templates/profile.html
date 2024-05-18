@@ -22,7 +22,11 @@
         </div>
         <div class="profile-block">
             <div class="profilepicture"></div>
-            <h1 class="profilename">{{ name }}</h1>
+            {% if role == 'Администратор' %}
+                <h1 class="profilename" style="color: #bd9009">{{ name }}</h1>
+            {% else %}
+                <h1 class="profilename">{{ name }}</h1>
+            {% endif %}
             <p class="profileinfo">{{ role }}</p>
             <div class="profiledetails">
                 <dl>

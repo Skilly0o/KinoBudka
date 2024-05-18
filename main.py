@@ -1,5 +1,4 @@
 import sqlite3
-import random
 
 from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import LoginManager, login_user, logout_user
@@ -23,8 +22,6 @@ socketio = SocketIO(app)
 
 admin.add_view(UserModelView(User, db.session))
 admin.add_view(FilmModelView(Films, db.session))
-
-TOKEN = '0ZQWR0F-514MCGT-GB84PY1-ZK93RG2'
 
 
 @app.errorhandler(403)
@@ -76,7 +73,7 @@ def info():  # Обработка страницы с информацией  с
 @app.route("/login", methods=['GET', 'POST'])
 def login():  # вход пользователя
     if current_user.is_authenticated:  # если пользователь уже на сайте то перенаправляем его в профиль
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', id=current_user.get_id()))
     if request.method == 'POST':
         email = request.form['email']  # берем из входа почту и по ней ищем пользователя
         user = User.query.filter_by(email=email).first()
@@ -84,7 +81,7 @@ def login():  # вход пользователя
             'password']):  # проверяем введенный пароль с паролем из базы данных
             userlogin = User_login().create(user)
             login_user(userlogin)  # Если все совпало то логинем пользователя перенаправляя его в профиль
-            return redirect(url_for('profile'))
+            return redirect(url_for('profile', id=user.id))
     flash('Неверные данные', 'error')
     return render_template('login.html')
 
@@ -141,15 +138,18 @@ def register():  # регистрация пользователя
     return render_template('reg.html')
 
 
-@app.route("/profile")
+@app.route("/profile/<id>")
 @login_required
-def profile():  # профиль пользователя
-    username = User.query.filter_by(id=current_user.get_id()).first().username
-    email = User.query.filter_by(id=current_user.get_id()).first().email
-    role = User.query.filter_by(id=current_user.get_id()).first().role
-    if role == 'user':
-        return render_template('profile.html', name=username, mail=email, role='Пользователь')
-    return render_template('profile.html', name=username, mail=email, role='Администратор')
+def profile(id):  # профиль пользователя
+    try:
+        username = User.query.filter_by(id=id).first().username
+        email = User.query.filter_by(id=id).first().email
+        role = User.query.filter_by(id=id).first().role
+        if role == 'user':
+            return render_template('profile.html', name=username, mail=email, role='Пользователь')
+        return render_template('profile.html', name=username, mail=email, role='Администратор')
+    except:
+        return render_template('error.html', error='n_user', id=id)
 
 
 @app.route("/logout")
