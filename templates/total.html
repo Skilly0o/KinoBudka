@@ -64,30 +64,49 @@ KinBu
             outline: none;
         }
     </style>
-    <div class="carousel">
-        <div class="carousel-slide" id="carousel-slide">
-            <!-- Слайды с фотографиями -->
-            <img src="{{ movie[0][6] }}" alt="Фото 1">
-            <img src="{{ movie[1][6] }}" alt="Фото 2">
-            <img src="{{ movie[2][6] }}" alt="Фото 3">
-        </div>
-    </div>
     {% if user.is_authenticated %}
+        <div class="ricing-header p-3 pb-md-4 mx-auto text-center">
+            <h3 class="text-white display-4 fw-normal text-body-emphasis">Советуем к просмотру</h3>
+        </div>
+        <div class="carousel">
+            <div class="carousel-slide" id="carousel-slide">
+                <!-- Слайды с фотографиями -->
+                <img src="{{ movie[0][6] }}" alt="Фото 1">
+                <img src="{{ movie[1][6] }}" alt="Фото 2">
+                <img src="{{ movie[2][6] }}" alt="Фото 3">
+            </div>
+        </div>
         <div class="ricing-header p-3 pb-md-4 mx-auto text-center">
             <h3 class="text-white display-4 fw-normal text-body-emphasis">Открытые комнаты</h3>
         </div>
         {% if room  %}
             {% for r in room %}
-                <div class="movie">
-                    <p class="text-white fs-7">
-                        Имя комнаты {{ r[0] }}
-                        Создатель {{ r[1]['admin'] }}
+            <a href="./room/{{ r[0] }}" style="text-decoration: none;">
+                <div class="movie-rooms">
+                    <p class="rooms_film text-white">
+                        {% if r[1]['v'] == 'film' %}
+                            Название фильма: {{ r[1]['filmname'] }}
+                        {% else %}
+                            Название видео: {{ r[1]['video_name'] }}
+                        {% endif %}
                     </p>
+                    <p class="rooms_name text-white">
+                        Имя комнаты: {{ r[0] }}
+                    </p>
+                    <p class="rooms_admin text-white">
+                        Создатель: {{ r[1]['admin'] }}
+                    </p>
+
                 </div>
+            </a>
             {% endfor %}
         {% else %}
-            <h5 class="text-white display-4 fw-normal text-body-emphasis">Ничего нет</h5>
+            <p class="movie-empty">Открытых комнат нет :(</p>
         {% endif %}
+    {% else %}
+        <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+            <h2 class="text-white display-4 fw-normal text-body-emphasis fs-5"> Для полного функционирования сайта авторизуйтесь </h2>
+        </div>
     {% endif %}
     <script>
         // Получаем элементы карусели

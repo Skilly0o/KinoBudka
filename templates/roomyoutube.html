@@ -91,19 +91,19 @@
    });
 
 
-  const createMessage = (name, msg) => {
+  const createMessage = (name, msg, role) => {
     const content = `
     <div class="text">
-        <span>
-            <strong>${name}</strong>: ${msg}
+        <span class="message-content">
+            <strong class="${role}">${name}</strong>: ${msg}
         </span>
     </div>
     `;
     messages.innerHTML += content;
-  };
+};
 
-  socketio.on("message", (data) => {
-    createMessage(data.name, data.message);
+socketio.on("message", (data) => {
+    createMessage(data.name, data.message, data.role);
 });
 
   const sendMessage = () => {

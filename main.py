@@ -13,7 +13,7 @@ from config.films import Films
 from config.mail_sender import send_email
 from config.user import User
 from config.user_login import User_login
-from config.youtube import get_video_id
+from config.youtube import get_video_id, get_video_name
 from setting import *
 
 import os
@@ -42,7 +42,6 @@ socketio = SocketIO(app)
 admin.add_view(UserModelView(User, db.session))
 admin.add_view(FilmModelView(Films, db.session))
 
-TOKEN = '0ZQWR0F-514MCGT-GB84PY1-ZK93RG2'
 
 def convert_to_binary_data(filename):
     # Преобразование данных в двоичный формат
@@ -88,6 +87,7 @@ def hello():  # главная страница
         if value.get('status') == 'open':
             open_values.append((key, value))
     random_data = random.sample(rezult, 5)
+
     return render_template('total.html', movie=random_data, room=open_values, user=current_user)
 
 
@@ -99,7 +99,7 @@ def info():  # Обработка страницы с информацией  с
 @app.route("/login", methods=['GET', 'POST'])
 def login():  # вход пользователя
     if current_user.is_authenticated:  # если пользователь уже на сайте то перенаправляем его в профиль
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', id=current_user.get_id()))
     if request.method == 'POST':
         email = request.form['email']  # берем из входа почту и по ней ищем пользователя
         user = User.query.filter_by(email=email).first()
@@ -107,7 +107,7 @@ def login():  # вход пользователя
             'password']):  # проверяем введенный пароль с паролем из базы данных
             userlogin = User_login().create(user)
             login_user(userlogin)  # Если все совпало то логинем пользователя перенаправляя его в профиль
-            return redirect(url_for('profile'))
+            return redirect(url_for('profile', id=user.id))
     flash('Неверные данные', 'error')
     return render_template('login.html')
 
@@ -166,80 +166,84 @@ def register():  # регистрация пользователя
     return render_template('reg.html')
 
 
-@app.route("/profile", methods=['GET', 'POST'])
+@app.route("/profile/<id>", methods=['GET', 'POST'])
 @login_required
-def profile():  # профиль пользователя
-    username = User.query.filter_by(id=current_user.get_id()).first().username
-    email = User.query.filter_by(id=current_user.get_id()).first().email
-    role = User.query.filter_by(id=current_user.get_id()).first().role
-    ava = User.query.filter_by(id=current_user.get_id()).first().avatar
+def profile(id):  # профиль пользователя
+    try:
+        username = User.query.filter_by(id=id).first().username
+        email = User.query.filter_by(id=id).first().email
+        role = User.query.filter_by(id=id).first().role
+        ava = User.query.filter_by(id=id).first().avatar
 
-    def prepare_mask(size, antialias=2):
-        mask = Image.new('L', (size[0] * antialias, size[1] * antialias), 0)
-        ImageDraw.Draw(mask).ellipse((0, 0) + mask.size, fill=255)
-        return mask.resize(size, Image.Resampling.LANCZOS)
+        def prepare_mask(size, antialias=2):
+            mask = Image.new('L', (size[0] * antialias, size[1] * antialias), 0)
+            ImageDraw.Draw(mask).ellipse((0, 0) + mask.size, fill=255)
+            return mask.resize(size, Image.Resampling.LANCZOS)
 
-    def crop(im, s):
-        w, h = im.size
-        k = w / s[0] - h / s[1]
-        if k > 0:
-            im = im.crop(((w - h) / 2, 0, (w + h) / 2, h))
-        elif k < 0:
-            im = im.crop((0, (h - w) / 2, w, (h + w) / 2))
-        return im.resize(s, Image.Resampling.LANCZOS)
+        def crop(im, s):
+            w, h = im.size
+            k = w / s[0] - h / s[1]
+            if k > 0:
+                im = im.crop(((w - h) / 2, 0, (w + h) / 2, h))
+            elif k < 0:
+                im = im.crop((0, (h - w) / 2, w, (h + w) / 2))
+            return im.resize(s, Image.Resampling.LANCZOS)
 
-    class UploadForm(FlaskForm):
-        photo = FileField(validators=[FileAllowed(photos, 'Image only!'),
-                                      FileRequired('File was empty!')])
-        submit = SubmitField('Поменять авaтарку')
+        class UploadForm(FlaskForm):
+            photo = FileField(validators=[FileAllowed(photos, 'Image only!'),
+                                          FileRequired('File was empty!')])
+            submit = SubmitField('Поменять авaтарку')
 
-    # замена аватарки
-    form = UploadForm()
-    if form.validate_on_submit():
-        filename = photos.save(form.photo.data)
-        file_url = photos.url(filename)
+            # замена аватарки
+        form = UploadForm()
+        if form.validate_on_submit():
+            filename = photos.save(form.photo.data)
+            file_url = photos.url(filename)
 
-        response = requests.get(file_url, stream=True).raw
-        img = Image.open(response)
-        # изменяем размер
-        im = crop(img, (200, 200))
-        im.putalpha(prepare_mask((200, 200), 4))
-        im.save('uploads/image113.png')
-        os.remove('uploads/' + filename)
+            response = requests.get(file_url, stream=True).raw
+            img = Image.open(response)
+            # изменяем размер
+            im = crop(img, (200, 200))
+            im.putalpha(prepare_mask((200, 200), 4))
+            im.save('uploads/image113.png')
+            os.remove('uploads/' + filename)
 
-        # Загркжаем аватарку в базу данных
-        emp_photo = convert_to_binary_data('uploads/image113.png')
-        os.remove('uploads/image113.png')
-        query = "UPDATE user SET avatar = :ava WHERE id = :id"
-        id = current_user.get_id()
-        parameters = {"ava": emp_photo, "id": id}
+            # Загркжаем аватарку в базу данных
+            emp_photo = convert_to_binary_data('uploads/image113.png')
+            os.remove('uploads/image113.png')
+            query = "UPDATE user SET avatar = :ava WHERE id = :id"
+            id = current_user.get_id()
+            parameters = {"ava": emp_photo, "id": id}
 
-        stmt = text(query)
-        db.session.execute(stmt, parameters)
-        db.session.commit()
+            stmt = text(query)
+            db.session.execute(stmt, parameters)
+            db.session.commit()
 
-        query = """SELECT avatar from user where id = :id"""
+            query = """SELECT avatar from user where id = :id"""
 
-        stmt = text(query)
-        foto = db.session.execute(stmt, parameters).fetchall()
+            stmt = text(query)
+            foto = db.session.execute(stmt, parameters).fetchall()
 
-        with open(f'uploads/{parameters["id"]}.png', 'wb') as file:
-            file.write(foto[0][0])
-        file_url = photos.url(f'{parameters["id"]}.png')
-    else:
-        id = current_user.get_id()
-        parameters = {"id": id}
-        query = """SELECT avatar from user where id = :id"""
+            with open(f'uploads/{parameters["id"]}.png', 'wb') as file:
+                file.write(foto[0][0])
+            file_url = photos.url(f'{parameters["id"]}.png')
+        else:
+            id = current_user.get_id()
+            parameters = {"id": id}
+            query = """SELECT avatar from user where id = :id"""
 
-        stmt = text(query)
-        foto = db.session.execute(stmt, parameters).fetchall()
+            stmt = text(query)
+            foto = db.session.execute(stmt, parameters).fetchall()
 
-        with open(f'uploads/{parameters["id"]}.png', 'wb') as file:
-            file.write(foto[0][0])
-        file_url = photos.url(f'{parameters["id"]}.png')
-    if role == 'user':
-        return render_template('profile.html', name=username, mail=email, role='Пользователь', avatar='image111.png', form=form, file_url=file_url)
-    return render_template('profile.html', name=username, mail=email, role='Администратор', avatar='image111.png', form=form, file_url=file_url)
+            with open(f'uploads/{parameters["id"]}.png', 'wb') as file:
+                file.write(foto[0][0])
+            file_url = photos.url(f'{parameters["id"]}.png')
+        if role == 'user':
+            return render_template('profile.html', name=username, mail=email, role='Пользователь', avatar='image111.png', form=form, file_url=file_url)
+        return render_template('profile.html', name=username, mail=email, role='Администратор', avatar='image111.png', form=form, file_url=file_url)
+    except:
+        return render_template('error.html', error='n_user', id=id)
+
 
 
 @app.route("/logout", methods=['GET', 'POST'])
@@ -284,10 +288,10 @@ def youtube():  # для создания видоса с ютуба
                 room = create_name_room()
                 if isclose:
                     rooms[room] = {"members": 0, "messages": [], 'url': url,
-                                   'v': 'video', 'admin': name, 'status': 'close'}
+                                   'v': 'video', 'video_name': get_video_name(url), 'admin': name, 'status': 'close'}
                 else:
                     rooms[room] = {"members": 0, "messages": [], 'url': url,
-                                   'v': 'video', 'admin': name,  'status': 'open'}
+                                   'v': 'video', 'video_name': get_video_name(url), 'admin': name, 'status': 'open'}
                 content = {
                     "name": 'KinBu',
                     "message": f'Имя комнаты: {room}'
@@ -337,15 +341,16 @@ def films_info(id):  # инфа фильмы
         con = sqlite3.connect('instance/films.db', check_same_thread=False)
         cur = con.cursor()
         rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
+        film_name = rezult[2]
         name = User.query.filter_by(id=current_user.get_id()).first().username
         url = rezult[5]
         room = create_name_room()
         if isclose:
             rooms[room] = {"members": 0, "messages": [], 'url': url,
-                           'v': 'film', 'admin': name, 'status': 'close'}
+                           'v': 'film', 'filmname': film_name, 'admin': name, 'status': 'close'}
         else:
             rooms[room] = {"members": 0, "messages": [], 'url': url,
-                           'v': 'film', 'admin': name, 'status': 'open'}
+                           'v': 'film', 'filmname': film_name, 'admin': name, 'status': 'open'}
         content = {
             "name": 'KinBu',
             "message": f'Имя комнаты: {room}'
@@ -371,6 +376,7 @@ def room(nameroom):  # room page для фильмов и видео с ютуб
     if current_user.is_authenticated:
         session["room"] = nameroom
         session["name"] = User.query.filter_by(id=current_user.get_id()).first().username
+        session["role"] = User.query.filter_by(id=current_user.get_id()).first().role
 
     if nameroom is None or session.get("name") is None or nameroom not in rooms:
         print(session)
@@ -379,8 +385,10 @@ def room(nameroom):  # room page для фильмов и видео с ютуб
     print(rooms[nameroom])
     if rooms[nameroom]["v"] == 'film':
         return render_template("roomfilm.html", code=nameroom,
+                               role=User.query.filter_by(id=current_user.get_id()).first().role,
                                url=rooms[nameroom]["url"], messages=rooms[nameroom]["messages"])
     return render_template("roomyoutube.html", code=nameroom,
+                           role=User.query.filter_by(id=current_user.get_id()).first().role,
                            url=get_video_id(rooms[nameroom]["url"]), messages=rooms[nameroom]["messages"])
 
 
@@ -392,6 +400,7 @@ def message(data):
 
     content = {
         "name": session.get("name"),
+        'role': session.get("role"),
         "message": data["data"]
     }
     send(content, to=room)
@@ -448,4 +457,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, port=8080)
