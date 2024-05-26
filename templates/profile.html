@@ -21,16 +21,7 @@
             </nav>
         </div>
         <div class="profile-block">
-            <div class="profilepicture"></div>
-            {% if role == 'Администратор' %}
-                <h1 class="profilename" style="color: #bd9009">{{ name }}</h1>
-            {% else %}
-                <h1 class="profilename">{{ name }}</h1>
-            {% endif %}
-            {% if file_url %}
-            <br>
             <img src="{{ file_url }}" alt="image111.png">
-            {% endif %}
             <form method="POST" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
                 {{ form.photo }}
@@ -39,8 +30,14 @@
                 {% endfor %}
                 {{ form.submit }}
             </form>
-            <h1 class="profilename">{{ name }}</h1>
-            <p class="profileinfo">{{ role }}</p>
+            {% if role == 'Администратор' %}
+                <h1 class="profilename" style="color: #bd9009">{{ name }}</h1>
+            {% else %}
+                <h1 class="profilename">{{ name }}</h1>
+            {% endif %}
+            {% if file_url %}
+            <br>
+            {% endif %}
             <div class="profiledetails">
                 <dl>
                   <dt>Id:</dt>
