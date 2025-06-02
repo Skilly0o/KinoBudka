@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital@0;1&family=Roboto+Condensed:ital@0;1&display=swap');
+
+body {
+    font-family: "Roboto Condensed", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;}
+
+#chat-container {
+    color: white;
+    background-color: #31353b;
+    transform: translate(250px, 0);
+    overflow-y: auto;
+    flex-grow: 1;
+    height: 614px;
+    max-height: 614px;
+    width: 1080px;
+    padding: 10px;
+    word-break: break-word;
+}
+
+#chat-input {
+    color: white;
+    flex-grow: 0;
+    text-align: center;
+    transform: translate(250px, 0);
+    display: block;
+    background-color: #31353b;
+    padding: 5px;
+    border: none;
+    padding-bottom: 1px;
+}
+#chat-input-container {
+    width: 335px;
+    gap: 10px;
+    flex-direction: column;
+    display: flex;
+    align-self: stretch;
+}
+#chat-container p{
+    margin-bottom: 3px;}
+
+.admin{
+    color: #bd9009;
+}
+

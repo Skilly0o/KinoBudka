@@ -8,14 +8,33 @@ body {
 
 #video-block {
     width: 100%;
+    max-width: 1400px;
     display: flex;
-    align-items: stretch;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 20px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}
+
+#kodik-player {
+    width: 100%;
+    height: 100%;
+    border: none;
 }
 
 #video-container {
-    position: relative;
-    width: 100%;
-    height: 600px;
+    flex-grow: 1;
+    min-width: 0;
+    height: 610px;
+    background-color: black;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #player {
@@ -26,6 +45,13 @@ body {
     height: 100%;
 }
 
+#chat-input-container {
+    width: 335px;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+}
+
 #chat-container {
     color: white;
     background-color: #31353b;
@@ -34,32 +60,18 @@ body {
     max-height: 610px;
     padding: 10px;
     word-break: break-word;
+    border-radius: 10px;
 }
 
 #chat-input {
     color: white;
     flex-grow: 0;
     text-align: center;
-    display: block;
     background-color: #31353b;
-    padding: 5px;
+    padding: 5px 10px;
     border: none;
-    padding-bottom: 1px;
+    border-radius: 5px;
 }
-#video-block{
-    width: 1365px;
-    display: flex;
-    flex-direction: row;
-    align-self: center;
-    align-items: stretch;
-    justify-content: center;
-    gap: 10px;
-    flex-grow: 0;
-    padding-left: 10px;
-    padding-right: 10px;
-    margin-left: 270px;
-    margin-right: 270px;
-    }
 #youtubevideo{
 }
 #chat-input-container {
@@ -74,4 +86,22 @@ body {
 
 .admin{
     color: #bd9009;
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 1000px) {
+    #video-block {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #video-container,
+    #chat-input-container {
+        width: 100%;
+        height: auto;
+    }
+
+    #chat-container {
+        max-height: 300px;
+    }
 }

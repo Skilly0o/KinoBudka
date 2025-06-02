@@ -20,6 +20,8 @@ login_manager.login_view = 'login'
 
 socketio = SocketIO(app)
 
+#еба кайфули тема
+
 admin.add_view(UserModelView(User, db.session))
 admin.add_view(FilmModelView(Films, db.session))
 
@@ -288,13 +290,26 @@ def room(nameroom):  # room page для фильмов и видео с ютуб
 
     print(rooms[nameroom])
     if rooms[nameroom]["v"] == 'film':
-        return render_template("roomfilm.html", code=nameroom,
+        return render_template("testroomfilm.html", code=nameroom,
                                role=User.query.filter_by(id=current_user.get_id()).first().role,
                                url=rooms[nameroom]["url"], messages=rooms[nameroom]["messages"])
     return render_template("roomyoutube.html", code=nameroom,
                            role=User.query.filter_by(id=current_user.get_id()).first().role,
                            url=get_video_id(rooms[nameroom]["url"]), messages=rooms[nameroom]["messages"])
 
+
+@app.route("/chat")
+def on_chat():
+    session["room"] = 'chat'
+    content = {
+        "name": 'KinBu',
+        "message": f'Имя комнаты: chat'
+    }
+    if current_user.is_authenticated:
+        session["name"] = User.query.filter_by(id=current_user.get_id()).first().username
+    else:
+        session["name"] = 'No Name'
+    return render_template('chat.html',  messages=rooms['chat']["messages"])
 
 @socketio.on("message")
 def message(data):
@@ -313,20 +328,22 @@ def message(data):
 
 @socketio.on('play_video')
 def on_play_video():
+    print('play')
     room = session.get("room")
     name = session.get("name")
     if room not in rooms:
         return
-    emit('play_video', broadcast=False, to=room)
+    emit('play_video', broadcast=False, to=room, include_self=False)
 
 
 @socketio.on('pause_video')
 def on_stop_video():
+    print('stop')
     room = session.get("room")
     name = session.get("name")
     if room not in rooms:
         return
-    emit('pause_video', broadcast=False, to=room)
+    emit('pause_video', broadcast=False, to=room, include_self=False)
 
 
 @socketio.on("connect")
@@ -335,29 +352,36 @@ def connect(auth):
     name = session.get("name")
     if not room or not name:
         return
-    if room not in rooms:
-        leave_room(room)
-        return
+    if room == 'chat':
+        join_room(room)
+        send({"name": name, "message": "Присоединился/ась к обсуждению."}, to=room)
+    else:
+        if room not in rooms:
+            leave_room(room)
+            return
 
-    join_room(room)
-    send({"name": name, "message": "Присоединился/ась к комнате."}, to=room)
-    rooms[room]["members"] += 1
-    print(f"{name} joined room {room}")
+        join_room(room)
+        send({"name": name, "message": "Присоединился/ась к комнате."}, to=room)
+        rooms[room]["members"] += 1
+        print(f"{name} joined room {room}")
 
 
 @socketio.on("disconnect")
 def disconnect():
     room = session.get("room")
     name = session.get("name")
-    leave_room(room)
+    if room == 'chat':
+        leave_room(room)
+    else:
+        leave_room(room)
 
-    if room in rooms:
-        rooms[room]["members"] -= 1
-        if rooms[room]["members"] <= 0:
-            del rooms[room]
+        if room in rooms:
+            rooms[room]["members"] -= 1
+            if rooms[room]["members"] <= 0:
+                del rooms[room]
 
-    send({"name": name, "message": "Покинул/а комнату"}, to=room)
-    print(f"{name} has left the room {room}")
+        send({"name": name, "message": "Покинул/а комнату"}, to=room)
+        print(f"{name} has left the room {room}")
 
 
 if __name__ == '__main__':
