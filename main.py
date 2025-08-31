@@ -1,4 +1,5 @@
 import sqlite3
+import requests
 
 from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import LoginManager, login_user, logout_user
@@ -20,7 +21,7 @@ login_manager.login_view = 'login'
 
 socketio = SocketIO(app)
 
-#еба кайфули тема
+# еба кайфули тема
 
 admin.add_view(UserModelView(User, db.session))
 admin.add_view(FilmModelView(Films, db.session))
@@ -226,6 +227,24 @@ def youtube():  # для создания видоса с ютуба
 
 @app.route("/films", methods=['GET', 'POST'])
 @login_required
+def films():
+    KODIK_API_TOKEN = '32b40e5b28723f021fefe6d06d1f0708'
+    name = ""
+    if request.method == 'POST':
+        name = request.form.get("filmname", "")
+    else:
+        name = ""
+
+    url = f'https://kodikapi.com/search?token={KODIK_API_TOKEN}&title={name}&limit=30'
+    response = requests.get(url)
+    data = response.json()
+
+    results = data.get('results', [])
+    return render_template('filmslist.html', movies=results, lenmovies=len(results))
+
+
+'''@app.route("/films", methods=['GET', 'POST'])
+@login_required
 def films():  # фильмы
     con = sqlite3.connect('instance/films.db', check_same_thread=False)
     cur = con.cursor()
@@ -234,14 +253,14 @@ def films():  # фильмы
         name = request.form.get("filmname")
     elif request.method == 'GET':
         pass
-    rezult = cur.execute(f'''select * from films''').fetchall()
+    rezult = cur.execute(select * from films).fetchall()
     return render_template('filmslist.html', movies=filter(lambda x: name.lower() in x[2].lower(), list(rezult)),
-                           lenmovies=len(list(filter(lambda x: name.lower() in x[2].lower(), list(rezult)))))
+                           lenmovies=len(list(filter(lambda x: name.lower() in x[2].lower(), list(rezult)))))'''
 
 
-@app.route("/movie/<id>", methods=['GET', 'POST'])
+@app.route("/movie/<id>/aaaa", methods=['GET', 'POST'])
 @login_required
-def films_info(id):  # инфа фильмы
+def test_film_info_original(id):  # инфа фильмы
     if request.method == 'POST':
         isclose = request.form.get("close")
         con = sqlite3.connect('instance/films.db', check_same_thread=False)
@@ -274,6 +293,55 @@ def films_info(id):  # инфа фильмы
     cur = con.cursor()
     rezult = cur.execute(f'''select * from films where id == {str(id)}''').fetchone()
     return render_template('info_film.html', movie=rezult)
+
+
+@app.route("/movie", methods=['GET', 'POST'])
+@login_required
+def films_info():
+    url = request.args.get("video_url")
+    title = request.args.get("title")
+
+    if request.method == 'POST':
+        isclose = request.form.get("close")
+        name = User.query.filter_by(id=current_user.get_id()).first().username
+        room = create_name_room()
+
+        if isclose:
+            status = "close"
+        else:
+            status = "open"
+
+        rooms[room] = {
+            "members": 0,
+            "messages": [],
+            "url": url,
+            "v": "film",
+            "filmname": title,
+            "admin": name,
+            "status": status
+        }
+
+        rooms[room]["messages"].append({
+            "name": "KinBu",
+            "message": f"Имя комнаты: {room}"
+        })
+        rooms[room]["messages"].append({
+            "name": "KinBu",
+            "message": "Приятного просмотра ^-^"
+        })
+
+        session["room"] = room
+        session["name"] = name
+
+        return redirect(url_for("room", nameroom=room))
+
+    return render_template("info_film.html", movie={
+        "title": title,
+        "link": url,
+        "poster_url": request.args.get("poster_url"),
+        "description": request.args.get("description", ""),
+        "year": request.args.get("year", "")
+    })
 
 
 @app.route("/room/<nameroom>", methods=['GET', 'POST'])
@@ -309,7 +377,8 @@ def on_chat():
         session["name"] = User.query.filter_by(id=current_user.get_id()).first().username
     else:
         session["name"] = 'No Name'
-    return render_template('chat.html',  messages=rooms['chat']["messages"])
+    return render_template('chat.html', messages=rooms['chat']["messages"])
+
 
 @socketio.on("message")
 def message(data):
