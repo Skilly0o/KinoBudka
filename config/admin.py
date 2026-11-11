@@ -1,41 +1,43 @@
-from flask_admin import *
+from flask import abort, redirect, request, url_for
+from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
-from flask_login import current_user, login_required
+from flask_admin.theme import Bootstrap4Theme
+from flask_login import current_user
 
-from config.user import User
 from setting import app
 
+ADMIN_CSS = ['/static/css/admin.css']
 
-class MyAdminIndexView(AdminIndexView):
-    # Метод для проверки доступа к админке
-    @login_required
+
+class AdminAccessMixin:
+    """Пускает в админку только вошедших пользователей с ролью admin."""
+
     def is_accessible(self):
-        role = User.query.filter_by(id=current_user.get_id()).first().role
-        # В этом примере проверяется, является ли пользователь администратором
-        return str(role).lower() == 'admin'
+        return current_user.is_authenticated and str(current_user.role).lower() == 'admin'
+
+    def inaccessible_callback(self, name, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for('login', next=request.full_path.rstrip('?')))
+        return abort(403)
+
+
+class MyAdminIndexView(AdminAccessMixin, AdminIndexView):
+    extra_css = ADMIN_CSS
 
 
 # Создаем класс представления модели с ограниченным доступом
-class UserModelView(ModelView):
+class UserModelView(AdminAccessMixin, ModelView):
     column_searchable_list = ['username']
-    column_exclude_list = ['password']
-
-    @login_required
-    def is_accessible(self):
-        role = User.query.filter_by(id=current_user.get_id()).first().role
-        # В этом примере проверяется, является ли пользователь администратором
-        return str(role).lower() == 'admin'
+    column_exclude_list = ['password', 'avatar']
+    form_excluded_columns = ['avatar']
+    extra_css = ADMIN_CSS
 
 
-class FilmModelView(ModelView):
-    column_searchable_list = ['id']
-
-    @login_required
-    def is_accessible(self):
-        role = User.query.filter_by(id=current_user.get_id()).first().role
-        # В этом примере проверяется, является ли пользователь администратором
-        return str(role).lower() == 'admin'
+class FilmModelView(AdminAccessMixin, ModelView):
+    column_searchable_list = ['id', 'name']
+    extra_css = ADMIN_CSS
 
 
 # Добавляем представления моделей в админку с настройками доступа
-admin = Admin(app, name='KinBu Администрация', template_mode='bootstrap4', index_view=MyAdminIndexView())
+admin = Admin(app, name='KinBu Администрация', theme=Bootstrap4Theme(swatch='darkly'),
+              index_view=MyAdminIndexView())

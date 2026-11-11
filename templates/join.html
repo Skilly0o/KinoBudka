@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import icon %}
+
+{# Гость открыл ссылку на комнату: спрашиваем, как его называть #}
+
+{% block title %}
+KinBu
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="container">
+<div class="notice card">
+    <span class="notice-icon">{{ icon('users') }}</span>
+    <h1 class="page-title">Вас зовут в комнату</h1>
+    <p class="page-lead">Комната <b>{{ code }}</b> · создатель <b>{{ admin }}</b>{% if members %} · зрителей: {{ members }}{% endif %}</p>
+    <form method="post" class="join-form">
+        <div class="field">
+            <label for="nick">Имя пользователя</label>
+            <input type="text" class="input" id="nick" name="nick" minlength="1" maxlength="16" placeholder="Как вас называть в комнате" autocomplete="nickname" required autofocus>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">{{ icon('arrow-right') }} Войти в комнату</button>
+    </form>
+    <p class="hint">Есть аккаунт? <a href="{{ url_for('login', next=request.path) }}">Войдите</a> — тогда можно писать в чат.</p>
+</div>
+</div>
+{% endblock %}

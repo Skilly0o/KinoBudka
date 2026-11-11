@@ -1,82 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital@0;1&family=Roboto+Condensed:ital@0;1&display=swap');
+/* Страница регистрации (те же правила, что и в login.css для входа) */
 
-body {
-    font-family: "Roboto Condensed", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    background-color: #191b1e;
-    font-size: 16px;
-    color: white;
+.auth-card {
+    max-width: 460px;
+    margin: 18px auto 0;
+    padding: 34px 32px 26px;
 }
-.container {
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 20px;
-    border-radius: 10px;
-    -webkit-box-shadow: 0px 1px 8px 0px rgba(145, 154, 161, 0.2);
-    -moz-box-shadow: 0px 1px 8px 0px rgba(145, 154, 161, 0.2);
-    box-shadow: 0px 1px 8px 0px rgba(145, 154, 161, 0.2);
-
-}
-.container input {
-    background-color: #2a323b;
-    border: 1px solid #757171;
-    color: white;
-}
-h2 {
+.auth-card h2 {
     text-align: center;
     text-transform: uppercase;
-    margin-top: 0;
-    margin-bottom: 30px;
+    font-size: 22px;
+    letter-spacing: .02em;
 }
-label {
-    background-color: #191b1e;
-    display: block;
-    margin-bottom: 10px;
+.auth-lead {
+    margin: 10px 0 24px;
+    text-align: center;
+    color: var(--text-3);
+    font-size: 15px;
 }
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-    background-color: #191b1e;
-    width: 100%;
-    border: 1px solid #191b1e;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 20px;
-     border: 1px solid #757171;
-}
-input[type="submit"] {
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-}
-input[type="submit"]:hover {
-}
+.auth-submit { margin-top: 22px; }
 .message {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 22px;
+    color: var(--text-2);
 }
-.error {
-}
+.message a { font-weight: 800; }
 .back-button {
-    display: inline-block;
-    color: gray;
-    border: none;
-    cursor: pointer;
-    margin-top: 10px;
-    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    color: var(--text-3);
+    font-size: 14.5px;
+    font-weight: 600;
     text-decoration: none;
 }
-.back-button:hover{
-    color: inherit;
-}
-.button {
-    display: inline-block;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    margin-top: 10px;
+.back-button:hover { color: var(--violet-hi); }
+
+@media (max-width: 520px) {
+    .auth-card { padding: 26px 20px 20px; }
 }

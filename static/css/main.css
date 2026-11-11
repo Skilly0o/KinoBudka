@@ -1,32 +1,488 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,500;1,500&display=swap');
+/* ==========================================================================
+   KinoBudka — общая тема сайта (чёрно-фиолетовая)
+   Здесь лежат цвета, шрифты и общие элементы: шапка, кнопки, поля, карточки.
+   Стили отдельных страниц — в соседних файлах (total.css, films.css, room.css ...).
+   ========================================================================== */
 
-.body {
-  font-family: "Inter Tight", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 500;
-  font-style: normal;
+/* --- шрифты лежат локально, чтобы сайт работал и без интернета --- */
+@font-face {
+    font-family: "Manrope";
+    font-style: normal;
+    font-weight: 200 800;
+    font-display: swap;
+    src: url("../fonts/manrope-cyrillic-wght-normal.woff2") format("woff2");
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+    font-family: "Manrope";
+    font-style: normal;
+    font-weight: 200 800;
+    font-display: swap;
+    src: url("../fonts/manrope-latin-wght-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: "Unbounded";
+    font-style: normal;
+    font-weight: 200 900;
+    font-display: swap;
+    src: url("../fonts/unbounded-cyrillic-wght-normal.woff2") format("woff2");
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+    font-family: "Unbounded";
+    font-style: normal;
+    font-weight: 200 900;
+    font-display: swap;
+    src: url("../fonts/unbounded-latin-wght-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-.form-label{
-    color: white;
+:root {
+    color-scheme: dark;
+
+    /* фон и поверхности */
+    --bg: #08060d;
+    --bg-soft: #0d0a15;
+    --surface: #130f1d;
+    --surface-2: #1a1527;
+    --surface-3: #241d35;
+    --line: #2a2240;
+    --line-strong: #3d3160;
+
+    /* текст */
+    --text: #f2eefb;
+    --text-2: #bcb3d1;
+    --text-3: #8b819f;
+
+    /* фиолетовый */
+    --violet: #8b5cf6;
+    --violet-hi: #a98bfb;
+    --violet-lo: #6f3fe6;
+    --violet-deep: #3b1a86;
+    --violet-soft: rgba(139, 92, 246, .14);
+    --glow: rgba(139, 92, 246, .38);
+
+    /* состояния */
+    --danger: #f2617f;
+    --danger-soft: rgba(242, 97, 127, .13);
+    --ok: #4fd69c;
+    --ok-soft: rgba(79, 214, 156, .12);
+
+    --radius: 16px;
+    --radius-sm: 11px;
+    --radius-xs: 8px;
+    --shadow: 0 18px 50px rgba(0, 0, 0, .55);
+
+    --font: "Manrope", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    --font-display: "Unbounded", "Manrope", "Segoe UI", system-ui, sans-serif;
 }
-.mb-3{
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-color: var(--line-strong) transparent;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg);
+    background-image:
+        radial-gradient(900px 480px at 50% -220px, rgba(124, 58, 237, .30), transparent 70%),
+        radial-gradient(700px 500px at 105% 12%, rgba(91, 33, 182, .16), transparent 65%),
+        radial-gradient(600px 500px at -8% 38%, rgba(139, 92, 246, .09), transparent 65%);
+    background-repeat: no-repeat;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+}
+p { margin: 0; }
+a { color: var(--violet-hi); text-decoration: none; }
+a:hover { color: #c7b4ff; }
+img { max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+::selection { background: rgba(139, 92, 246, .45); color: #fff; }
+
+:focus-visible {
+    outline: 2px solid var(--violet-hi);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: #56458a; }
+::-webkit-scrollbar-track { background: transparent; }
+
+.icon {
+    width: 1.15em;
+    height: 1.15em;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vertical-align: -.2em;
+}
+.icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.container {
+    width: 100%;
+    max-width: 1180px;
     margin: 0 auto;
-    max-width: 60%;
+    padding: 0 20px;
 }
-#exampleFormControlTextarea1 {
-    resize: vertical;
+.container-wide { max-width: 1560px; }
+.container-narrow { max-width: 760px; }
+
+/* --------------------------------------------------------------- шапка */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(8, 6, 13, .78);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+    border-bottom: 1px solid var(--line);
 }
-.form-button {
+.site-header .container {
+    display: flex;
+    align-items: center;
+    gap: 12px 24px;
+    min-height: 66px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: -.02em;
+    color: var(--text);
+}
+.logo:hover { color: var(--text); }
+.logo b { font-weight: 700; color: var(--violet-hi); }
+.logo-mark {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
     border-radius: 10px;
-    color: white;
-    border: none;
-    min-height: 30px;
-    min-width: 120px;
+    background: linear-gradient(140deg, #a78bfa, #6d28d9 70%);
+    box-shadow: 0 6px 20px var(--glow), inset 0 1px 0 rgba(255, 255, 255, .28);
+    transition: transform .25s ease;
 }
+.logo:hover .logo-mark { transform: rotate(-6deg) scale(1.05); }
+.logo-mark svg { width: 16px; height: 16px; fill: #fff; margin-left: 2px; }
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+.nav a {
+    padding: 8px 13px;
+    border-radius: 10px;
+    color: var(--text-2);
+    font-weight: 600;
+    font-size: 15px;
+    transition: color .15s, background-color .15s;
+}
+.nav a:hover { color: var(--text); background: rgba(255, 255, 255, .05); }
+.nav a.active { color: #fff; background: var(--violet-soft); box-shadow: inset 0 0 0 1px rgba(139, 92, 246, .35); }
+
+.nav .nav-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 13px 5px 5px;
+    margin-left: 6px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background: var(--surface);
+    color: var(--text);
+    max-width: 190px;
+}
+.nav .nav-user:hover { border-color: var(--line-strong); background: var(--surface-2); }
+.nav .nav-user img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: var(--surface-3); }
+.nav .nav-user span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+main { flex: 1; padding: 36px 0 64px; }
+
+/* --------------------------------------------------------------- подвал */
+
+.site-footer {
+    border-top: 1px solid var(--line);
+    background: rgba(13, 10, 21, .7);
+    padding: 34px 0 30px;
+    color: var(--text-3);
+    font-size: 14.5px;
+}
+.site-footer .container {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 28px;
+}
+.site-footer h5 {
+    margin: 0 0 10px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--text);
+}
+.site-footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.site-footer a { color: var(--text-3); }
+.site-footer a:hover { color: var(--violet-hi); }
+.site-footer .logo, .site-footer .logo:hover { color: var(--text); }
+.footer-note { margin-top: 10px; max-width: 34ch; }
+
+/* --------------------------------------------------------------- кнопки */
+
+.btn {
+    --btn-bg: var(--surface-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 44px;
+    padding: 10px 20px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--btn-bg);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.2;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: transform .12s ease, box-shadow .2s ease, background-color .15s, border-color .15s, filter .15s;
+}
+.btn:hover { color: #fff; background: var(--surface-3); border-color: #55448a; }
+.btn:active { transform: translateY(1px) scale(.99); }
+.btn:disabled, .btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+.btn-primary {
+    border: 0;
+    background: linear-gradient(135deg, #9d7bfa 0%, #7c4df0 50%, #6a32e0 100%);
+    color: #fff;
+    box-shadow: 0 8px 26px rgba(124, 77, 240, .42), inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #b094fc 0%, #8b5cf6 50%, #7640ea 100%);
+    box-shadow: 0 10px 34px rgba(139, 92, 246, .58), inset 0 1px 0 rgba(255, 255, 255, .3);
+}
+
+.btn-ghost { background: transparent; border-color: var(--line); color: var(--text-2); }
+.btn-ghost:hover { background: rgba(255, 255, 255, .05); }
+
+.btn-danger { background: var(--danger-soft); border-color: rgba(242, 97, 127, .4); color: #ff9db1; }
+.btn-danger:hover { background: rgba(242, 97, 127, .22); border-color: var(--danger); color: #fff; }
+
+.btn-sm { min-height: 36px; padding: 7px 14px; font-size: 14px; border-radius: 9px; }
+.btn-lg { min-height: 52px; padding: 14px 28px; font-size: 16.5px; border-radius: 13px; }
+.btn-block { width: 100%; }
+.btn-icon { padding: 0; width: 36px; min-height: 36px; border-radius: 9px; }
+
+/* --------------------------------------------------------------- формы */
+
+.field { display: grid; gap: 7px; }
+.field + .field { margin-top: 16px; }
+.field > label, .label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-2);
+}
+
+.input, .textarea, .select,
 .form-control {
-    margin: 0 auto;
-    max-width: 80%;
-    margin-top: 30px;
-    margin-bottom: 30px;
+    display: block;
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: rgba(8, 6, 13, .6);
+    color: var(--text);
+    font-size: 15.5px;
+    transition: border-color .15s, box-shadow .15s, background-color .15s;
+}
+.textarea, textarea.form-control { min-height: 96px; resize: vertical; line-height: 1.5; }
+.input::placeholder, .textarea::placeholder, .form-control::placeholder { color: var(--text-3); opacity: 1; }
+.input:hover, .textarea:hover, .select:hover, .form-control:hover { border-color: #56458a; }
+.input:focus, .textarea:focus, .select:focus, .form-control:focus {
+    outline: none;
+    border-color: var(--violet);
+    background: rgba(8, 6, 13, .9);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, .2);
+}
+.select { appearance: none; padding-right: 38px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%23a98bfb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 5 4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 13px center; }
+.select option { background: var(--surface-2); color: var(--text); }
+input:-webkit-autofill {
+    -webkit-text-fill-color: var(--text);
+    box-shadow: 0 0 0 1000px #130f1d inset;
+    caret-color: var(--text);
+}
+
+/* галочка «Закрытая комната» */
+.check {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: var(--text-2);
+    font-weight: 600;
+    font-size: 15px;
+    user-select: none;
+}
+.check input {
+    appearance: none;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 7px;
+    background: rgba(8, 6, 13, .6) center / 14px no-repeat;
+    cursor: pointer;
+    transition: background-color .15s, border-color .15s, box-shadow .15s;
+}
+.check:hover input { border-color: var(--violet); }
+.check input:checked {
+    border-color: var(--violet);
+    background-color: var(--violet);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m2.5 7.5 3 3 6-7'/%3E%3C/svg%3E");
+    box-shadow: 0 0 14px var(--glow);
+}
+.check small { display: block; color: var(--text-3); font-weight: 500; font-size: 13px; }
+
+.hint { color: var(--text-3); font-size: 13.5px; }
+
+/* --------------------------------------------------------------- карточки и мелочи */
+
+.card {
+    background: linear-gradient(180deg, rgba(26, 21, 39, .92), rgba(19, 15, 29, .92));
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px;
+    box-shadow: var(--shadow);
+}
+.card-title { font-size: 19px; margin-bottom: 6px; }
+.card-text { color: var(--text-2); margin-bottom: 20px; }
+
+.page-head { margin-bottom: 28px; }
+.page-title { font-size: clamp(26px, 3.4vw, 38px); }
+.page-lead { margin-top: 10px; color: var(--text-2); font-size: 17px; max-width: 62ch; }
+.section-title { font-size: clamp(20px, 2.3vw, 26px); }
+.text-center { text-align: center; }
+.text-center .page-lead { margin-left: auto; margin-right: auto; }
+
+.grad {
+    background: linear-gradient(100deg, #c4b1ff 0%, #9b79fb 45%, #7c4df0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--line-strong);
+    background: rgba(255, 255, 255, .04);
+    color: var(--text-2);
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+.badge-violet { border-color: rgba(139, 92, 246, .5); background: var(--violet-soft); color: #cdbcff; }
+.badge-ok { border-color: rgba(79, 214, 156, .4); background: var(--ok-soft); color: #8ae9bf; }
+.badge .icon { width: 13px; height: 13px; }
+
+.alert {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+    padding: 12px 15px;
+    margin-bottom: 18px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line-strong);
+    background: var(--surface-2);
+    color: var(--text);
+    font-size: 15px;
+}
+.alert .icon { margin-top: 3px; }
+.alert-error { border-color: rgba(242, 97, 127, .45); background: var(--danger-soft); color: #ffb3c2; }
+.alert-success { border-color: rgba(79, 214, 156, .4); background: var(--ok-soft); color: #9eefca; }
+.alert-info { border-color: rgba(139, 92, 246, .45); background: var(--violet-soft); color: #d5c8ff; }
+
+.empty {
+    padding: 34px 20px;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    color: var(--text-3);
+    text-align: center;
+}
+
+.avatar-fallback {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(140deg, #7c4df0, #3b1a86);
+    color: #fff;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+/* страницы с одной формой по центру: вход, регистрация, поддержка */
+.narrow-page { max-width: 480px; margin: 0 auto; }
+.narrow-page.wide { max-width: 680px; }
+
+/* совместимость со старыми классами форм */
+.form-label { color: var(--text-2); font-size: 14px; font-weight: 700; display: block; margin-bottom: 7px; }
+.form-button { min-height: 44px; min-width: 140px; }
+
+@media (max-width: 720px) {
+    main { padding: 24px 0 48px; }
+    .site-header .container { justify-content: center; }
+    .nav { margin-left: 0; justify-content: center; }
+    .nav a { padding: 7px 10px; font-size: 14.5px; }
+    .site-footer .container { grid-template-columns: 1fr 1fr; }
+    .site-footer .footer-brand { grid-column: 1 / -1; }
+    .card { padding: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; scroll-behavior: auto !important; }
 }

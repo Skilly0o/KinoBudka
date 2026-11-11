@@ -1,14 +1,38 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import icon %}
 
 {% block title %}
 KinBu
 {% endblock %}
 
-{% block body %}
-
+{% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/info.css') }}">
-<div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-      <h1 class="text-white display-4 fw-normal text-body-emphasis">Chelixes</h1>
-      <p class="text-white fs-5 text-body-secondary">Данный сайт разработан: Skilly, kinzool, Lonelyslu</p>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="about text-center">
+        <span class="badge badge-violet">{{ icon('users') }} Команда</span>
+        <h1 class="about-title grad">Chelixes</h1>
+        <p class="page-lead">Данный сайт разработан: Skilly, kinzool, Lonelyslu</p>
     </div>
+
+    <div class="about-grid">
+        <div class="card about-card">
+            <span class="about-icon">{{ icon('crown') }}</span>
+            <h3>Видео управляет админ</h3>
+            <p>Пауза, перемотка и скорость — только у создателя комнаты. У остальных видео идёт синхронно.</p>
+        </div>
+        <div class="card about-card">
+            <span class="about-icon">{{ icon('video') }}</span>
+            <h3>Свой плеер</h3>
+            <p>YouTube, прямые ссылки на видео и ваши файлы из папки media — в одном плеере.</p>
+        </div>
+        <div class="card about-card">
+            <span class="about-icon">{{ icon('chat') }}</span>
+            <h3>Чат комнаты</h3>
+            <p>Обсуждайте просмотр с друзьями, не отвлекаясь от видео.</p>
+        </div>
+    </div>
+</div>
 {% endblock %}

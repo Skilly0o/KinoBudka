@@ -1,48 +1,73 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import icon %}
 
 {% block title %}
 KinBu
 {% endblock %}
 
-{% block body %}
+{% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/youtube.css') }}">
-{% if user.is_authenticated %}
-    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-        <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
-        <form id="createRoomForm" method="post" action="/youtube" class="form-group">
-            <input type="text" class="form-control" name="hrf" id="hrf" placeholder="Введите ссылку">
-            <input type="checkbox" id="close" name="close" />
-            <label class="text-white fs-7" for="close">Закрытая комната</label>
-            <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
-        </form>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="page-head text-center">
+        <h1 class="page-title">Комната для <span class="grad">совместного просмотра</span></h1>
+        <p class="page-lead">Создайте комнату и отправьте друзьям ссылку. Видео управляет только админ комнаты — у всех остальных оно идёт синхронно.</p>
     </div>
 
-    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-        <h3 class="text-white fs-4">Для подключения введите код комнаты</h3>
-        <form id="joinRoomForm" method="post" class="form-group">
-            <input type="text" class="form-control" placeholder="Введите код" name="code" id="room">
-            <button type="submit" class="btn btn-primary" name="join">Присоединиться к  комнате</button>
-        </form>
-    </div>
-{% else %}
-    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-        <h3 class="text-white fs-4">Для создания вставьте ссылку с видеоролика YouTube</h3>
-        <form method="post" action="/youtube" class="form-group">
-            <input type="text" class="form-control" name="hrf" placeholder="Введите ссылку">
-            <input type="text" class="form-control" style="color: white;"minlength="1" maxlength="16" name="nick" placeholder="Имя пользователя">
-            <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
-        </form>
-    </div>
+    {% if error == 'not url' %}
+    <div class="alert alert-error rooms-alert">{{ icon('alert') }}<span>Не получилось открыть эту ссылку. Нужна ссылка на ролик YouTube или прямая ссылка на видео (.mp4, .webm) либо поток (.m3u8).</span></div>
+    {% elif error == 'not room' %}
+    <div class="alert alert-error rooms-alert">{{ icon('alert') }}<span>Комната с таким кодом не найдена. Проверьте код или попросите ссылку у админа.</span></div>
+    {% elif error %}
+    <div class="alert alert-error rooms-alert">{{ icon('alert') }}<span>{{ error }}</span></div>
+    {% endif %}
 
-    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-        <h3 class="text-white fs-4">Для подключения введите код</h3>
-        <form method="post" class="form-group">
-            <input type="text" class="form-control" name="code" placeholder="Введите код">
-            <button type="submit" class="btn btn-primary" name="join">Присоединиться к  комнате</button>
-        </form>
+    <div class="room-forms">
+        <div class="card">
+            <span class="card-icon">{{ icon('video') }}</span>
+            <h3 class="card-title">Для создания вставьте ссылку с видеоролика YouTube</h3>
+            <p class="card-text">Подойдёт и прямая ссылка на видеофайл или поток.</p>
+            <form id="createRoomForm" method="post" action="/youtube" class="form-group">
+                <div class="field">
+                    <label for="hrf">Ссылка на видео</label>
+                    <input type="text" class="input" name="hrf" id="hrf" placeholder="https://www.youtube.com/watch?v=..." value="{{ hrf or '' }}" autocomplete="off" required>
+                </div>
+                {% if not user.is_authenticated %}
+                <div class="field">
+                    <label for="nick-create">Имя пользователя</label>
+                    <input type="text" class="input" id="nick-create" minlength="1" maxlength="16" name="nick" placeholder="Как вас называть в комнате" value="{{ session.get('name', '') }}">
+                </div>
+                {% endif %}
+                <div class="form-row">
+                    <label class="check" for="close">
+                        <input type="checkbox" id="close" name="close">
+                        <span>Закрытая комната<small>не показывать на главной, вход только по ссылке</small></span>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" name="create">{{ icon('plus') }} Создать комнату</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <span class="card-icon">{{ icon('link') }}</span>
+            <h3 class="card-title">Для подключения введите код комнаты</h3>
+            <p class="card-text">Код или ссылку на комнату даёт её админ.</p>
+            <form id="joinRoomForm" method="post" action="/youtube" class="form-group">
+                <div class="field">
+                    <label for="room">Код комнаты</label>
+                    <input type="text" class="input" placeholder="Введите код" name="code" id="room" value="{{ code or '' }}" autocomplete="off" required>
+                </div>
+                {% if not user.is_authenticated %}
+                <div class="field">
+                    <label for="nick-join">Имя пользователя</label>
+                    <input type="text" class="input" id="nick-join" minlength="1" maxlength="16" name="nick" placeholder="Как вас называть в комнате" value="{{ session.get('name', '') }}">
+                </div>
+                {% endif %}
+                <button type="submit" class="btn btn-block" name="join">{{ icon('arrow-right') }} Присоединиться к комнате</button>
+            </form>
+        </div>
     </div>
-
-{% endif %}
-<li class="text-white fs-4"> {{ error }}</li>
-
+</div>
 {% endblock %}

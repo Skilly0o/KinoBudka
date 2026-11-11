@@ -1,126 +1,105 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import icon, poster %}
 
 {% block title %}
 KinBu
 {% endblock %}
 
-{% block body %}
-
+{% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/total.css') }}">
-<div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-    <h1 class="text-white display-4 fw-normal text-body-emphasis">Добро пожаловать на KinBu</h1>
-    <p class="text-white fs-5 text-body-secondary">Сайт для совместного просмотра видео.</p>
-</div>
-<div class="ricing-header p-3 pb-md-4 mx-auto text-center">
-    <h3 class="text-white display-4 fw-normal text-body-emphasis">Советуем к просмотру</h3>
-</div>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% endblock %}
 
-    <style>
-        /* Стили для карусели */
-        .carousel {
-            width: 80%;
-            margin: auto;
-            position: relative;
-            overflow: hidden;
-        }
+{% block body %}
+<section class="hero container">
+    <span class="badge badge-violet">{{ icon('users') }} Совместный просмотр</span>
+    <h1 class="hero-title">Добро пожаловать на <span class="grad">KinBu</span></h1>
+    <p class="hero-lead">Сайт для совместного просмотра видео.</p>
+    <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="/youtube">{{ icon('plus') }} Создать комнату</a>
+        <a class="btn btn-lg" href="/films">{{ icon('film') }} Фильмы</a>
+    </div>
+</section>
 
-        .carousel-slide {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
-            gap: 10px;
-            margin: 0 auto;
-            align-items: stretch;
-            max-width: 1300px;
-        }
-
-        .carousel-slide img {
-            width: 33%;
-            border-radius: 10px;
-        }
-
-        /* Кнопки управления */
-        .carousel-controls {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .carousel-controls button {
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        /* Устанавливаем контекст управления на уровне карусели */
-        .carousel-controls button:focus {
-            outline: none;
-        }
-    </style>
+{% if movie %}
+<section class="container home-section">
+    <div class="section-head">
+        <h3 class="section-title">Советуем к просмотру</h3>
+        <div class="carousel-controls">
+            <button class="btn btn-icon" id="prevBtn" type="button" aria-label="Назад">{{ icon('chevron-left') }}</button>
+            <button class="btn btn-icon" id="nextBtn" type="button" aria-label="Вперёд">{{ icon('chevron-right') }}</button>
+        </div>
+    </div>
     <div class="carousel">
         <div class="carousel-slide" id="carousel-slide">
             <!-- Слайды с фотографиями -->
-            <img src="{{ movie[0][6] }}" alt="Фото 1">
-            <img src="{{ movie[1][6] }}" alt="Фото 2">
-            <img src="{{ movie[2][6] }}" alt="Фото 3">
+            {% for m in movie %}
+            <a class="carousel-item" href="/movie/{{ m[1] }}">
+                {{ poster(m[6], m[2]) }}
+                <span class="carousel-caption">{{ m[2] }}</span>
+            </a>
+            {% endfor %}
         </div>
     </div>
-    {% if user.is_authenticated %}
-        <div class="ricing-header p-3 pb-md-4 mx-auto text-center">
-            <h3 class="text-white display-4 fw-normal text-body-emphasis">Открытые комнаты</h3>
-        </div>
-        {% if room  %}
-            {% for r in room %}
-                <div class="movie">
-                    <p class="text-white fs-7">
-                        Имя комнаты {{ r[0] }}
-                        Создатель {{ r[1]['admin'] }}
-                    </p>
-                </div>
-            {% endfor %}
-        {% else %}
-            <h5 class="text-white display-4 fw-normal text-body-emphasis">Ничего нет</h5>
-        {% endif %}
+</section>
+{% endif %}
+
+{% if user.is_authenticated %}
+<section class="container home-section">
+    <div class="section-head">
+        <h3 class="section-title">Открытые комнаты</h3>
+    </div>
+    {% if room %}
+    <div class="rooms">
+        {% for r in room %}
+        <a class="room-card" href="/room/{{ r[0] }}">
+            <span class="room-card-top">
+                <span class="badge badge-violet">{{ r[1]['label'] }}</span>
+                <span class="badge">{{ icon('users') }} {{ r[1]['members'] }}</span>
+            </span>
+            <span class="room-card-title">{{ r[1]['title'] or 'Комната ' ~ r[0] }}</span>
+            <span class="room-card-meta">Имя комнаты <b>{{ r[0] }}</b></span>
+            <span class="room-card-meta">Создатель <b>{{ r[1]['admin'] }}</b></span>
+            <span class="room-card-go">Войти {{ icon('arrow-right') }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">Ничего нет. <a href="/youtube">Создайте комнату</a> — и она появится здесь.</div>
     {% endif %}
-    <script>
-        // Получаем элементы карусели
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Карусель «Советуем к просмотру»
+    (function () {
         const carouselSlide = document.getElementById('carousel-slide');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
-
-        // Текущий индекс слайда
-        let currentIndex = 0;
+        if (!carouselSlide || !prevBtn || !nextBtn) return;
 
         // Функция для переключения слайдов
-        function showSlide(index) {
-            const totalSlides = carouselSlide.children.length;
-            // Проверяем, что текущий индекс находится в пределах доступных слайдов
-            if (index >= totalSlides) {
-                currentIndex = 0;
-            } else if (index < 0) {
-                currentIndex = totalSlides - 1;
-            } else {
-                currentIndex = index;
-            }
-
-            // Обновляем трансформацию для перемещения карусели
-            carouselSlide.style.transform = `translateX(-${currentIndex * 100}%)`;
+        function showSlide(direction) {
+            const item = carouselSlide.querySelector('.carousel-item');
+            if (!item) return;
+            const step = item.getBoundingClientRect().width + 18;
+            const max = carouselSlide.scrollWidth - carouselSlide.clientWidth;
+            let next = carouselSlide.scrollLeft + direction * step;
+            if (next > max + 4) next = 0;           // дошли до конца — возвращаемся в начало
+            if (next < -4) next = max;
+            carouselSlide.scrollTo({left: next, behavior: 'smooth'});
         }
 
         // Обработчики событий для кнопок
-        prevBtn.addEventListener('click', () => showSlide(currentIndex - 1));
-        nextBtn.addEventListener('click', () => showSlide(currentIndex + 1));
+        prevBtn.addEventListener('click', () => showSlide(-1));
+        nextBtn.addEventListener('click', () => showSlide(1));
 
         // Автоматическое перелистывание карусели каждые 5 секунд
-        setInterval(() => {
-            showSlide(currentIndex + 1);
-        }, 5000);
-    </script>
+        let paused = false;
+        carouselSlide.addEventListener('pointerenter', () => { paused = true; });
+        carouselSlide.addEventListener('pointerleave', () => { paused = false; });
+        setInterval(() => { if (!paused && !document.hidden) showSlide(1); }, 5000);
+    })();
+</script>
 {% endblock %}

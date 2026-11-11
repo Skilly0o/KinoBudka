@@ -1,0 +1,26 @@
+{# Общие кусочки вёрстки для всех страниц #}
+
+{# Иконка из набора в _icons.html: {{ icon('play') }} #}
+{% macro icon(name, cls='') -%}
+<svg class="icon {{ cls }}" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-{{ name }}"></use></svg>
+{%- endmacro %}
+
+{# Сообщения flash(...) из main.py #}
+{% macro flashes() %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% for category, message in messages %}
+<div class="alert {{ 'alert-success' if category == 'success' else 'alert-error' }}">
+    {{ icon('check' if category == 'success' else 'alert') }}
+    <span>{{ message }}</span>
+</div>
+{% endfor %}
+{% endwith %}
+{% endmacro %}
+
+{# Постер фильма: если картинка не загрузилась, остаётся аккуратная заглушка с названием #}
+{% macro poster(src, title) -%}
+<span class="poster">
+    <span class="poster-fallback">{{ icon('film') }}<span>{{ title }}</span></span>
+    {% if src %}<img src="{{ src }}" alt="{{ title }}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">{% endif %}
+</span>
+{%- endmacro %}

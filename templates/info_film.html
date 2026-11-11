@@ -1,27 +1,52 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import icon, poster %}
 
 {% block title %}
 KinBu
 {% endblock %}
 
-{% block body %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/total.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/info-film.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="container">
+<a class="back-link" href="/films">{{ icon('chevron-left') }} Все фильмы</a>
 <div class="movie-block">
+  {% if local %}
+  {# свой файл из папки media #}
   <div class="movie-header">
-      <div class="movie-img"><img src="{{ movie[6] }}" alt="{{ movie[2] }}"></div>
+      <div class="movie-img">
+          <span class="poster local-poster"><span class="poster-fallback">{{ icon('play') }}<span>{{ local.ext|upper }}</span></span></span>
+      </div>
+  </div>
+  <div class="movie-info">
+      <span class="badge badge-violet">{{ icon('folder') }} Моя медиатека</span>
+      <h1 class="movie-title">{{ local.name }}</h1>
+      <div class="info">
+          <p>{% if local.folder %}Папка: {{ local.folder }} · {% endif %}Формат {{ local.ext|upper }} · {{ local.size }}</p>
+          <p class="hint">Файл идёт через свой плеер: видео управляет админ комнаты, у остальных оно синхронно.</p>
+      </div>
+  {% else %}
+  <div class="movie-header">
+      <div class="movie-img">{{ poster(movie[6], movie[2]) }}</div>
   </div>
   <div class="movie-info">
       <h1 class="movie-title">{{ movie[2] }}</h1>
       <div class="info">
-          <p>{{ movie[3] }}</p>
+          <p class="genres">{% for genre in (movie[3] or '').split(',') if genre.strip() %}<span class="badge">{{ genre.strip() }}</span>{% endfor %}</p>
           <p> Год выпуска {{ movie[4] }}</p>
       </div>
-      <form id="createRoomForm" method="post" class="form-group">
-              <button type="submit" class="btn btn-primary" name="create">Создать комнату</button>
-          <input type="checkbox" id="close" name="close" />
-            <label class="text-white fs-7" for="close">Закрытая комната</label>
+  {% endif %}
+      <form id="createRoomForm" method="post" class="form-group create-room">
+          <label class="check" for="close">
+              <input type="checkbox" id="close" name="close" />
+              <span>Закрытая комната<small>не показывать на главной, вход только по ссылке</small></span>
+          </label>
+          <button type="submit" class="btn btn-primary btn-lg" name="create">{{ icon('plus') }} Создать комнату</button>
       </form>
   </div>
 </div>
-
+</div>
 {% endblock %}

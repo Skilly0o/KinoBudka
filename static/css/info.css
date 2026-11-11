@@ -1,7 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital@0;1&family=Roboto+Condensed:ital@0;1&display=swap');
+/* Страница «О нас» */
 
-body {
-    font-family: "Roboto Condensed", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;}
+.about { padding: 22px 0 10px; }
+.about-title {
+    margin-top: 18px;
+    font-size: clamp(40px, 7vw, 76px);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1.05;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 40px;
+}
+.about-card { padding: 24px; }
+.about-card h3 { font-size: 17px; margin: 16px 0 8px; }
+.about-card p { color: var(--text-2); font-size: 15.5px; }
+.about-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    background: var(--violet-soft);
+    border: 1px solid rgba(139, 92, 246, .4);
+    color: var(--violet-hi);
+}
+.about-icon .icon { width: 22px; height: 22px; }
+
+@media (max-width: 820px) {
+    .about-grid { grid-template-columns: 1fr; }
+}

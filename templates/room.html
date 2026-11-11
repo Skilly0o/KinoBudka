@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import icon %}
+
+{# Комната совместного просмотра: плеер слева, чат и зрители справа #}
+
+{% block title %}KinBu{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/player.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/room.css') }}">
+{% endblock %}
+
+{% block header_container %}container-wide{% endblock %}
+
+{% block body %}
+<div class="container container-wide room">
+
+    <div class="room-bar">
+        <div class="room-bar-title">
+            <span class="room-dot" aria-hidden="true"></span>
+            <h1 class="room-title" id="room-title">{{ settings.source.title }}</h1>
+        </div>
+        <div class="room-bar-info">
+            <span class="badge badge-violet" id="room-kind">{{ settings.source.label }}</span>
+            <span class="badge" id="room-status"></span>
+            <span class="badge" title="Админ комнаты">{{ icon('crown') }} <span id="room-admin-name">{{ room.admin }}</span></span>
+            <span class="badge" title="Сейчас в комнате">{{ icon('users') }} <span id="members-count">1</span></span>
+            <button class="btn btn-sm btn-ghost" id="copy-code" type="button" title="Скопировать код комнаты">{{ icon('copy') }} <span>{{ code }}</span></button>
+            <span class="share">
+                <button class="btn btn-sm btn-primary" id="copy-link" type="button">{{ icon('link') }} Ссылка для друзей</button>
+                <span class="share-menu" id="share-menu" hidden>
+                    <span class="share-hint">Какой адрес отправить друзьям:</span>
+                </span>
+            </span>
+        </div>
+    </div>
+
+    <div id="video-block">
+        <div id="video-container">
+            <div id="player"></div>
+        </div>
+
+        <div id="chat-input-container">
+            <div class="side-tabs">
+                <button class="side-tab is-current" type="button" data-pane="chat">{{ icon('chat') }} Чат</button>
+                <button class="side-tab" type="button" data-pane="members">{{ icon('users') }} Зрители <span class="side-count" id="tab-members-count">0</span></button>
+            </div>
+
+            <div class="side-pane" id="pane-chat">
+                <div id="chat-container"></div>
+                {% if current_user.get_id() %}
+                <div class="chat-form">
+                    <input id="chat-input" type="text" placeholder="Введите сообщение" maxlength="500" autocomplete="off">
+                    <button class="btn btn-primary btn-icon" id="chat-send" type="button" title="Отправить">{{ icon('send') }}</button>
+                </div>
+                {% else %}
+                <p class="chat-locked">Для доступа к чату <a href="{{ url_for('login', next=request.path) }}">войдите в аккаунт</a>.</p>
+                {% endif %}
+            </div>
+
+            <div class="side-pane" id="pane-members" hidden>
+                <div id="members"></div>
+            </div>
+        </div>
+    </div>
+
+    {# подсказка зрителю #}
+    <p class="room-note" id="guest-note" {% if is_admin %}hidden{% endif %}>
+        {{ icon('sync') }}
+        <span>Видео управляет админ <b id="guest-note-admin">{{ room.admin }}</b> — у всех оно идёт одинаково. Вам доступны громкость и полный экран.</span>
+    </p>
+    <p class="room-note" id="embed-note" hidden>
+        {{ icon('alert') }}
+        <span>Это встроенный сторонний плеер: управлять им снаружи нельзя, поэтому каждый запускает видео сам. Полная синхронизация работает для YouTube, видео по прямой ссылке и своих файлов.</span>
+    </p>
+
+    {# инструменты админа комнаты #}
+    <section class="room-tools card" id="admin-tools" {% if not is_admin %}hidden{% endif %}>
+        <div class="tools-head">
+            <h3>{{ icon('crown') }} Управление комнатой</h3>
+            <span class="hint">Этот блок видите только вы. Пуск, пауза и перемотка — на самом плеере.</span>
+        </div>
+        <div class="tools-grid">
+            <form class="tool" id="source-form" autocomplete="off">
+                <label class="label" for="source-url">Сменить видео</label>
+                <div class="tool-row">
+                    <input class="input" id="source-url" type="text" placeholder="Ссылка на YouTube или прямая ссылка на видео">
+                    <button class="btn btn-primary" type="submit">Включить</button>
+                </div>
+                <div class="tool-row" id="source-file-box" hidden>
+                    <select class="select" id="source-file" aria-label="Свой файл из медиатеки"></select>
+                </div>
+                <p class="tool-error" id="source-error" hidden></p>
+            </form>
+
+            <div class="tool">
+                <span class="label">Доступ в комнату</span>
+                <div class="segmented" id="status-toggle">
+                    <button type="button" data-status="open">{{ icon('globe') }} Открытая</button>
+                    <button type="button" data-status="close">{{ icon('lock') }} Закрытая</button>
+                </div>
+                <span class="hint">Открытая видна на главной, в закрытую входят только по ссылке или коду.</span>
+            </div>
+
+            <div class="tool tool-end">
+                <span class="label">Просмотр окончен?</span>
+                <button class="btn btn-danger" id="close-room" type="button">{{ icon('power') }} Завершить комнату</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="room-notices" id="room-notices" aria-live="polite"></div>
+
+<div class="room-ended" id="room-ended" hidden>
+    <div class="card room-ended-card">
+        <span class="room-ended-icon">{{ icon('power') }}</span>
+        <h2>Просмотр завершён</h2>
+        <p id="room-ended-text"></p>
+        <a class="btn btn-primary" href="{{ settings.home }}">На главную</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="room-settings" type="application/json">{{ settings|tojson }}</script>
+<script src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/kb-player.js') }}"></script>
+<script src="{{ url_for('static', filename='js/room.js') }}"></script>
+{% endblock %}

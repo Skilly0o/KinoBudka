@@ -1,28 +1,85 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import icon, poster %}
 
 {% block title %}
 KinBu
 {% endblock %}
 
-{% block body %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/total.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/films.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="container">
   <div class="film-form">
-      <form action="#" method="post">
-        <input type="text" name="filmname" class="film-input" placeholder="Фильмы, сериалы">
+      <form action="/films" method="get">
+        <span class="film-search">
+            {{ icon('search') }}
+            <input type="text" name="q" class="film-input" placeholder="Фильмы, сериалы" value="{{ query }}" autocomplete="off">
+        </span>
+        <button class="btn btn-primary" type="submit">Найти</button>
       </form>
   </div>
+
+  {# Свои видеофайлы из папки media — идут через свой плеер с полной синхронизацией #}
+  {% if page == 1 and not query %}
+  <section class="library">
+      <div class="library-head">
+          <h3 class="section-title">{{ icon('folder') }} Моя медиатека</h3>
+          <span class="hint">Видео из папки <code>media</code> на компьютере, где запущен сайт</span>
+      </div>
+      {% if library %}
+      <div class="library-list">
+          {% for item in library %}
+          <a class="library-item" href="{{ url_for('library', filename=item.path) }}">
+              <span class="library-icon">{{ icon('play') }}</span>
+              <span class="library-text">
+                  <span class="library-name">{{ item.name }}</span>
+                  <span class="library-meta">{% if item.folder %}{{ item.folder }} · {% endif %}{{ item.ext|upper }} · {{ item.size }}</span>
+              </span>
+          </a>
+          {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty">Здесь появятся ваши видео. Положите файлы (.mp4, .webm, .mkv) в папку <code>media</code> рядом с сайтом — и их можно будет смотреть вместе с друзьями.</div>
+      {% endif %}
+  </section>
+  {% endif %}
+
+  <div class="films-head">
+      <h3 class="section-title">{% if query %}Результаты поиска{% else %}Каталог{% endif %}</h3>
+      {% if lenmovies %}<span class="hint">Найдено: {{ lenmovies }}</span>{% endif %}
+  </div>
+
   <div class="movies">
     {% if lenmovies == 0 %}
-      <h3 class="text-white">Ничего не найдено</h3>
+      <div class="empty movies-empty">
+          <h3 class="text-white">Ничего не найдено</h3>
+          {% if query %}<p>По запросу «{{ query }}» фильмов нет. <a href="/films">Показать все</a></p>{% endif %}
+      </div>
     {% else %}
       {% for movie in movies %}
         <div class="movie">
           <a class="amovie" href="/movie/{{ movie[1] }}">
-            <img src="{{ movie[6] }}" alt="{{ movie[2] }}">
+            {{ poster(movie[6], movie[2]) }}
             <p class="film-title">{{ movie[2] }}</p>
           </a>
         </div>
       {% endfor %}
     {% endif %}
   </div>
+
+  {% if pages > 1 %}
+  <nav class="pager" aria-label="Страницы">
+      {% if page > 1 %}
+      <a class="btn btn-sm" href="{{ url_for('films', q=query or none, page=page - 1) }}">{{ icon('chevron-left') }} Назад</a>
+      {% endif %}
+      <span class="pager-info">Страница {{ page }} из {{ pages }}</span>
+      {% if page < pages %}
+      <a class="btn btn-sm" href="{{ url_for('films', q=query or none, page=page + 1) }}">Дальше {{ icon('chevron-right') }}</a>
+      {% endif %}
+  </nav>
+  {% endif %}
+</div>
 {% endblock %}

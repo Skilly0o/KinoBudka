@@ -1,34 +1,39 @@
 {% extends 'base.html' %}
+{% from '_macros.html' import icon %}
 
 {% block title %}
 KinBu
 {% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/support.css') }}">
+{% endblock %}
+
 {% block body %}
-    <style>
-        .form-control{
-            margin: 0px;}
-    </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/support.css') }}">
-    <form method="post" class="form-group">
+<div class="container">
+    <div class="page-head text-center">
+        <h1 class="page-title">Для правообладателей</h1>
+        <p class="page-lead">Если на сайте размещён ваш материал — заполните форму, и мы его удалим.</p>
+    </div>
+    <form method="post" class="form-group support-form card">
         <div class="mb-3">
-              <label for="exampleFormControlTextarea1" class="form-label">Организация</label>
-              <textarea class="form-control" name="org"  id="exampleFormControlTextarea3" rows="1"></textarea>
+              <label for="exampleFormControlTextarea3" class="form-label">Организация</label>
+              <textarea class="form-control one-line" name="org"  id="exampleFormControlTextarea3" rows="1"></textarea>
         </div>
 
         <div class="mb-3">
-              <label for="exampleFormControlTextarea1" class="form-label">Контактное лицо</label>
-              <textarea class="form-control" name="contact"  id="exampleFormControlTextarea4" rows="1"></textarea>
+              <label for="exampleFormControlTextarea4" class="form-label">Контактное лицо</label>
+              <textarea class="form-control one-line" name="contact"  id="exampleFormControlTextarea4" rows="1"></textarea>
         </div>
 
         <div class="mb-3">
               <label for="exampleFormControlInput1" class="form-label">Email</label>
-              <input type="email" name="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+              <input type="email" name="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com" required>
         </div>
         <div class="mb-3">
               <label for="exampleFormControlTextarea1" class="form-label">
                 Прямые ссылки на страницы ресурса, информация с которых подлежит удалению </label>
-              <textarea class="form-control" name="url"  id="exampleFormControlTextarea1" rows="1"></textarea>
+              <textarea class="form-control one-line" name="url"  id="exampleFormControlTextarea1" rows="1"></textarea>
         </div>
         <div class="mb-3">
               <label for="exampleFormControlTextarea2" class="form-label">
@@ -37,9 +42,10 @@ KinBu
               <textarea class="form-control" name="body" id="exampleFormControlTextarea2" rows="3"></textarea>
         </div>
         <div class="mb-3">
-            <button class="form-button bg-primary" type='submit'>
-                Отправить
+            <button class="form-button btn btn-primary" type='submit'>
+                {{ icon('send') }} Отправить
             </button>
         </div>
     </form>
+</div>
 {% endblock %}

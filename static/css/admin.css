@@ -1,0 +1,60 @@
+/* Админка сайта (/admin): тёмная тема Flask-Admin, подкрашенная в цвета KinoBudka */
+
+body {
+    background-color: #08060d;
+    background-image: radial-gradient(900px 480px at 50% -220px, rgba(124, 58, 237, .28), transparent 70%);
+    background-repeat: no-repeat;
+    color: #f2eefb;
+}
+
+.navbar {
+    background: #130f1d !important;
+    border-bottom: 1px solid #2a2240;
+}
+.navbar .navbar-brand { color: #f2eefb !important; font-weight: 700; }
+.navbar .nav-link { color: #bcb3d1 !important; }
+.navbar .nav-link:hover,
+.navbar .active > .nav-link { color: #fff !important; }
+
+a { color: #a98bfb; }
+a:hover { color: #c7b4ff; }
+
+.btn-primary,
+.page-item.active .page-link,
+.nav-pills .nav-link.active {
+    background-color: #7c4df0 !important;
+    border-color: #7c4df0 !important;
+    color: #fff !important;
+}
+.btn-primary:hover { background-color: #8b5cf6 !important; border-color: #8b5cf6 !important; }
+
+.nav-tabs { border-bottom-color: #2a2240; }
+.nav-tabs .nav-link.active {
+    background: #1a1527;
+    border-color: #2a2240 #2a2240 #1a1527;
+    color: #fff;
+}
+
+.table { color: #f2eefb; }
+.table th, .table td { border-color: #2a2240 !important; }
+.table thead th { background: #1a1527; color: #bcb3d1; }
+.table-hover tbody tr:hover { background: rgba(139, 92, 246, .1); color: #fff; }
+.table-striped tbody tr:nth-of-type(odd) { background: rgba(255, 255, 255, .02); }
+
+.form-control,
+.select2-container .select2-choice,
+.input-group-text {
+    background-color: #0d0a15 !important;
+    border-color: #3d3160 !important;
+    color: #f2eefb !important;
+}
+.form-control:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 .2rem rgba(139, 92, 246, .25) !important;
+}
+
+.page-link { background: #130f1d; border-color: #2a2240; color: #a98bfb; }
+.dropdown-menu { background: #1a1527; border-color: #2a2240; }
+.dropdown-item { color: #f2eefb; }
+.dropdown-item:hover { background: rgba(139, 92, 246, .18); color: #fff; }
+.modal-content { background: #130f1d; border-color: #2a2240; }

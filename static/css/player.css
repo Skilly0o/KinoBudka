@@ -1,0 +1,377 @@
+/* Свой плеер KinoBudka (кнопки и слои поверх видео). Логика — в static/js/kb-player.js */
+
+.kb-player {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    color: #fff;
+    font-size: 15px;
+}
+
+.kb-stage, .kb-shield { position: absolute; inset: 0; }
+.kb-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #000;
+}
+video.kb-media { object-fit: contain; }
+.kb-media iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+/* Клики по видео ловит прозрачный слой: до самого YouTube они не доходят,
+   поэтому зритель не может поставить видео на паузу в обход админа */
+.kb-player[data-kind="youtube"] .kb-media iframe { pointer-events: none; }
+.kb-shield { z-index: 2; }
+.kb-player.is-admin .kb-shield { cursor: pointer; }
+.kb-player.is-passthrough .kb-shield { pointer-events: none; }
+.kb-player.is-passthrough[data-kind="youtube"] .kb-media iframe { pointer-events: auto; }
+
+/* сторонний встроенный плеер: своих кнопок нет, клики идут прямо в него */
+.kb-player.is-passive .kb-shield,
+.kb-player.is-passive .kb-bar,
+.kb-player.is-passive .kb-top { display: none; }
+
+.kb-player [hidden] { display: none !important; }
+
+/* ---------- верхняя плашка «кто управляет» ---------- */
+.kb-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 4;
+    display: flex;
+    padding: 14px 16px 34px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, .6), transparent);
+    pointer-events: none;
+    transition: opacity .25s ease;
+}
+.kb-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    max-width: 100%;
+    padding: 5px 11px;
+    border-radius: 99px;
+    background: rgba(18, 12, 30, .72);
+    border: 1px solid rgba(169, 139, 251, .45);
+    color: #e3d9ff;
+    font-size: 13px;
+    font-weight: 700;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+.kb-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kb-chip .icon { width: 14px; height: 14px; color: #a98bfb; }
+
+/* ---------- нижняя панель ---------- */
+.kb-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    padding: 46px 14px 10px;
+    background: linear-gradient(0deg, rgba(4, 2, 9, .92), rgba(4, 2, 9, .55) 55%, transparent);
+    transition: opacity .25s ease, transform .25s ease;
+}
+/* пока видео идёт и мышь не двигается — панели прячутся */
+.kb-player.is-playing:not(.is-awake) .kb-bar,
+.kb-player.is-playing:not(.is-awake) .kb-top { opacity: 0; }
+.kb-player.is-playing:not(.is-awake) .kb-bar { transform: translateY(8px); pointer-events: none; }
+.kb-player.is-playing:not(.is-awake).is-fullscreen { cursor: none; }
+.kb-player.is-playing:not(.is-awake) .kb-bar:focus-within { opacity: 1; transform: none; pointer-events: auto; }
+
+.kb-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+.kb-spacer { flex: 1; }
+
+.kb-btn {
+    display: grid;
+    place-items: center;
+    flex: none;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 14px;
+    transition: background-color .15s, color .15s, transform .1s;
+}
+.kb-btn:hover { background: rgba(169, 139, 251, .24); color: #fff; }
+.kb-btn:active { transform: scale(.94); }
+.kb-btn .icon { width: 21px; height: 21px; }
+
+.kb-time {
+    margin: 0 8px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: 14px;
+    color: #e9e3f7;
+    white-space: nowrap;
+}
+.kb-ratenote {
+    padding: 3px 9px;
+    border-radius: 99px;
+    background: rgba(169, 139, 251, .22);
+    color: #d9ccff;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* то, что есть только у админа / только у зрителя / только для YouTube */
+.kb-player:not(.is-admin) .kb-admin-only { display: none; }
+.kb-player.is-admin .kb-guest-only { display: none; }
+.kb-player:not([data-kind="youtube"]) .kb-youtube-only { display: none; }
+
+/* ---------- ползунки ---------- */
+.kb-progress { position: relative; }
+.kb-seek, .kb-volume {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    --value: 0%;
+    --buffer: 0%;
+}
+.kb-seek { width: 100%; height: 18px; }
+.kb-seek::-webkit-slider-runnable-track {
+    height: 5px;
+    border-radius: 5px;
+    background: linear-gradient(90deg,
+        #a98bfb 0, #8b5cf6 var(--value),
+        rgba(255, 255, 255, .42) var(--value), rgba(255, 255, 255, .42) var(--buffer),
+        rgba(255, 255, 255, .18) var(--buffer));
+    transition: height .12s ease;
+}
+.kb-seek::-moz-range-track {
+    height: 5px;
+    border-radius: 5px;
+    background: linear-gradient(90deg,
+        #a98bfb 0, #8b5cf6 var(--value),
+        rgba(255, 255, 255, .42) var(--value), rgba(255, 255, 255, .42) var(--buffer),
+        rgba(255, 255, 255, .18) var(--buffer));
+}
+.kb-seek::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    margin-top: -5px;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, .45), 0 2px 8px rgba(0, 0, 0, .5);
+    transition: transform .12s ease;
+}
+.kb-seek::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, .45), 0 2px 8px rgba(0, 0, 0, .5);
+}
+.kb-seek:hover::-webkit-slider-thumb { transform: scale(1.15); }
+/* у зрителя полоса только показывает прогресс: ползунка нет и двигать её нельзя */
+.kb-seek:disabled { cursor: default; opacity: 1; }
+.kb-seek:disabled::-webkit-slider-thumb { visibility: hidden; }
+.kb-seek:disabled::-moz-range-thumb { visibility: hidden; }
+
+.kb-tip {
+    position: absolute;
+    bottom: 24px;
+    transform: translateX(-50%);
+    padding: 3px 8px;
+    border-radius: 7px;
+    background: rgba(18, 12, 30, .95);
+    border: 1px solid rgba(169, 139, 251, .4);
+    font-size: 12.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.kb-volume { width: 84px; height: 18px; margin-right: 4px; }
+.kb-volume::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #fff var(--value), rgba(255, 255, 255, .25) var(--value));
+}
+.kb-volume::-moz-range-track {
+    height: 4px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #fff var(--value), rgba(255, 255, 255, .25) var(--value));
+}
+.kb-volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    margin-top: -4px;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+}
+.kb-volume::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #fff; }
+
+/* ---------- меню скорости ---------- */
+.kb-ratebox { position: relative; }
+.kb-rate { min-width: 50px; font-variant-numeric: tabular-nums; }
+.kb-menu {
+    position: absolute;
+    right: 0;
+    bottom: 46px;
+    display: grid;
+    min-width: 132px;
+    padding: 6px;
+    border-radius: 12px;
+    background: rgba(18, 12, 30, .97);
+    border: 1px solid rgba(169, 139, 251, .35);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .6);
+}
+.kb-menu-item {
+    padding: 8px 11px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #e9e3f7;
+    font-weight: 700;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+}
+.kb-menu-item:hover { background: rgba(169, 139, 251, .22); }
+.kb-menu-item.is-current { color: #c4b1ff; background: rgba(139, 92, 246, .2); }
+
+/* ---------- слои по центру ---------- */
+.kb-bigplay {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    width: 86px;
+    height: 86px;
+    margin: -43px 0 0 -43px;
+    border: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a98bfb, #6a32e0);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 0 0 10px rgba(139, 92, 246, .18), 0 14px 46px rgba(124, 77, 240, .6);
+    transition: transform .15s ease, box-shadow .2s ease;
+}
+.kb-bigplay:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 0 14px rgba(139, 92, 246, .22), 0 16px 56px rgba(139, 92, 246, .75);
+}
+.kb-bigplay .icon { width: 34px; height: 34px; margin-left: 5px; }
+
+.kb-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 3;
+    width: 54px;
+    height: 54px;
+    margin: -27px 0 0 -27px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, .16);
+    border-top-color: #a98bfb;
+    animation: kb-spin .85s linear infinite;
+    pointer-events: none;
+}
+@keyframes kb-spin { to { transform: rotate(360deg); } }
+
+.kb-wait {
+    position: absolute;
+    left: 50%;
+    bottom: 84px;
+    z-index: 3;
+    transform: translateX(-50%);
+    max-width: calc(100% - 32px);
+    padding: 9px 16px;
+    border-radius: 99px;
+    background: rgba(18, 12, 30, .82);
+    border: 1px solid rgba(169, 139, 251, .4);
+    color: #e3d9ff;
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+    pointer-events: none;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.kb-toast {
+    position: absolute;
+    left: 50%;
+    top: 58px;
+    z-index: 7;
+    transform: translateX(-50%);
+    max-width: calc(100% - 32px);
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(169, 139, 251, .55);
+    background: rgba(26, 17, 46, .96);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, .55);
+}
+
+.kb-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 24px;
+    text-align: center;
+    background: rgba(6, 4, 12, .78);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+.kb-overlay p { max-width: 46ch; color: #cfc5e6; font-weight: 600; }
+.kb-gate .btn .icon { width: 18px; height: 18px; }
+.kb-error { z-index: 6; }
+.kb-error > .icon { width: 44px; height: 44px; color: #f2617f; }
+.kb-error p { color: #fff; font-size: 16px; }
+
+/* ---------- полный экран и узкие экраны ---------- */
+.kb-player.is-fullscreen { width: 100vw; height: 100vh; border-radius: 0; }
+.kb-player.is-fullscreen .kb-bar { padding: 60px 26px 18px; }
+.kb-player.is-fullscreen .kb-top { padding: 22px 26px 40px; }
+
+@media (max-width: 620px) {
+    .kb-wide-only, .kb-volume { display: none; }
+    .kb-bar { padding: 34px 8px 6px; }
+    .kb-time { margin: 0 4px; font-size: 13px; }
+    .kb-bigplay { width: 68px; height: 68px; margin: -34px 0 0 -34px; }
+    .kb-bigplay .icon { width: 27px; height: 27px; }
+    .kb-wait { bottom: 70px; font-size: 13px; }
+}

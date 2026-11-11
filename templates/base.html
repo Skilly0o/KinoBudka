@@ -1,59 +1,74 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#08060d">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    {% block head %}{% endblock %}
     <title>{% block title %}{% endblock %}</title>
 </head>
-<body>
-<style>
-    body {
-   	   background: #191b1e;
-   }
+<body class="{% block body_class %}{% endblock %}">
+{% include '_icons.html' %}
+{% from '_macros.html' import icon %}
 
-</style>
-<div class="container d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
-    <a href="/" class="d-flex align-items-center link-body-emphasis text-decoration-none">
-        <span class="text-white fs-4">KinoBudka</span>
-    </a>
-    <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-        <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/info">О нас</a>
-        <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/support">Поддержка</a>
-        <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/login">Аккаунт</a>
-        <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/youtube">YouTube</a>
-        <a class="text-white me-3 py-2 link-body-emphasis text-decoration-none" href="/films">Фильмы</a>
-    </nav>
-</div>
+<header class="site-header">
+    <div class="container {% block header_container %}{% endblock %}">
+        <a href="/" class="logo">
+            <span class="logo-mark"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 1.8v12.4a.8.8 0 0 0 1.2.7l10-6.2a.8.8 0 0 0 0-1.4l-10-6.2a.8.8 0 0 0-1.2.7z"/></svg></span>
+            <span>Kino<b>Budka</b></span>
+        </a>
+        <nav class="nav">
+            <a class="{{ 'active' if request.endpoint == 'info' }}" href="/info">О нас</a>
+            <a class="{{ 'active' if request.endpoint == 'support' }}" href="/support">Поддержка</a>
+            {% if not current_user.is_authenticated %}
+            <a class="{{ 'active' if request.endpoint in ('login', 'register') }}" href="/login">Аккаунт</a>
+            {% endif %}
+            <a class="{{ 'active' if request.endpoint == 'youtube' }}" href="/youtube">YouTube</a>
+            <a class="{{ 'active' if request.endpoint in ('films', 'films_info', 'library') }}" href="/films">Фильмы</a>
+            {% if current_user.is_authenticated %}
+            {% if request.endpoint == 'profile' %}
+            <a href="/logout">Выйти</a>
+            {% else %}
+            <a class="nav-user" href="/profile" title="Аккаунт">
+                <img src="{{ avatar_url(current_user.get_id()) }}" alt="">
+                <span>{{ current_user.username }}</span>
+            </a>
+            {% endif %}
+            {% endif %}
+        </nav>
+    </div>
+</header>
 
+<main>
 {% block body %}{% endblock %}
+</main>
 
-<footer class="container pt-4 my-md-5 pt-md-5 border-top">
-    <div class="row">
-        <div class="col-12 col-md">
-            <small class="d-block mb-3 text-body-secondary">©2024</small>
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-brand">
+            <a href="/" class="logo">
+                <span class="logo-mark"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 1.8v12.4a.8.8 0 0 0 1.2.7l10-6.2a.8.8 0 0 0 0-1.4l-10-6.2a.8.8 0 0 0-1.2.7z"/></svg></span>
+                <span>Kino<b>Budka</b></span>
+            </a>
+            <p class="footer-note">Смотрим видео вместе с друзьями. ©2024</p>
         </div>
-        <div class="col-6 col-md">
-        </div>
-        <div class="text-white col-6 col-md">
+        <div>
             <h5>Авторам</h5>
-            <ul class="list-unstyled text-small">
-                <li class="mb-1">
-                    <a class="link-secondary text-decoration-none" href="/abuse">Для правообладателей</a>
-                </li>
+            <ul>
+                <li><a href="/abuse">Для правообладателей</a></li>
             </ul>
         </div>
-        <div class="text-white col-6 col-md">
+        <div>
             <h5>О нас</h5>
-            <ul class="list-unstyled text-small">
-                <li class="mb-1"><a class="link-secondary text-decoration-none" href="/info">Команда</a></li>
-                <li class="mb-1"><a class="link-secondary text-decoration-none" href="/">Спонсоры</a></li>
+            <ul>
+                <li><a href="/info">Команда</a></li>
+                <li><a href="/">Спонсоры</a></li>
             </ul>
         </div>
     </div>
 </footer>
+{% block scripts %}{% endblock %}
 </body>
 </html>

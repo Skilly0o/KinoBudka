@@ -1,22 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital@0;1&family=Roboto+Condensed:ital@0;1&display=swap');
+/* Страница создания комнаты и входа по коду */
 
-body {
-    font-family: "Roboto Condensed", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;}
-
-.form-control {
-    border-radius: 5px;
-    border: none;
-    background: #191b1e;
-    color: white;
-    border: 1px solid #757171;
-    padding: 5px;
+.room-forms {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    align-items: start;
+    max-width: 980px;
+    margin: 0 auto;
 }
-.form-control:focus {
-    color: white;
-    background: #191b1e;
-    -webkit-box-shadow: 3px 3px 24px 7px rgba(50,51,51,0.5);
-    box-shadow: 3px 3px 24px 7px rgba(50,51,51,0.5);
+.rooms-alert { max-width: 980px; margin-left: auto; margin-right: auto; }
+
+.card-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    margin-bottom: 16px;
+    border-radius: 13px;
+    background: var(--violet-soft);
+    border: 1px solid rgba(139, 92, 246, .4);
+    color: var(--violet-hi);
+}
+.card-icon .icon { width: 22px; height: 22px; }
+
+.form-group .form-row { margin: 18px 0; }
+.form-group .field:last-of-type { margin-bottom: 18px; }
+.form-group .form-row + .btn { margin-top: 0; }
+
+@media (max-width: 760px) {
+    .room-forms { grid-template-columns: 1fr; }
 }
