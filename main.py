@@ -1,9 +1,11 @@
 import hashlib
+import logging
 import math
 import os
 import secrets
 import socket
 import sqlite3
+import sys
 from datetime import timedelta
 from io import BytesIO
 from urllib.parse import urlsplit
@@ -723,5 +725,12 @@ def print_addresses():
 
 if __name__ == '__main__':
     os.makedirs(MEDIA_DIR, exist_ok=True)
+    try:  # ник с эмодзи не должен ронять сайт в консоли со старой кодировкой
+        sys.stdout.reconfigure(errors='replace')
+    except (AttributeError, ValueError):
+        pass
+    if not DEBUG:
+        # без отладки не засыпаем консоль строчкой на каждый запрос — ошибки всё равно видны
+        logging.getLogger('werkzeug').setLevel(logging.ERROR)
     print_addresses()
-    socketio.run(app, host=HOST, port=PORT, debug=DEBUG, allow_unsafe_werkzeug=True)
+    socketio.run(app, host=HOST, port=PORT, debug=DEBUG, allow_unsafe_werkzeug=True, load_dotenv=False)

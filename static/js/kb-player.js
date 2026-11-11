@@ -1060,6 +1060,10 @@
                 }
             }
             this._watchAutoplay(now);
+        } else if (atEnd && !driver.paused && duration - driver.time < 3) {
+            // таймлайн остановлен в самом конце, а этому зрителю осталось мгновение —
+            // даём плееру доиграть самому, а не ставим паузу на последнем кадре
+            driver.setRate(timeline.rate);
         } else {
             if (!driver.paused) driver.pause();
             driver.setRate(timeline.rate);
@@ -1083,7 +1087,7 @@
         var self = this;
         var driver = this.driver;
         if (now < this._playRetryAt) return;
-        this._playRetryAt = now + 1000;
+        this._playRetryAt = now + 600;
         if (!this._playAskedAt) this._playAskedAt = now;
         if (!driver.live && (!driver.started || driver.ended || Math.abs(driver.time - target) > 0.5)) {
             this._seek(now, target);

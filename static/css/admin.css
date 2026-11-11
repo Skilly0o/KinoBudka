@@ -58,3 +58,15 @@ a:hover { color: #c7b4ff; }
 .dropdown-item { color: #f2eefb; }
 .dropdown-item:hover { background: rgba(139, 92, 246, .18); color: #fff; }
 .modal-content { background: #130f1d; border-color: #2a2240; }
+
+/* кнопки «изменить» и «удалить» в строках таблицы */
+.list-buttons-column a,
+.list-buttons-column .icon { color: #f2eefb; }
+.list-buttons-column form { display: inline; }
+.list-buttons-column button {
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: #f2617f;
+}
+.list-buttons-column button:hover { color: #ff9db1; }
